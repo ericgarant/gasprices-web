@@ -145,3 +145,15 @@ section[id^="view-"]{position:absolute;inset:0}
 @media (prefers-reduced-motion: reduce){
   .radar__dot,.pin--best .pin__plate{animation-delay:0s!important}
 }
+
+/* Phone widths: the round buttons never squash into pills (found by the e2e tests at 360-412 px);
+   the fuel toggle gives up some padding instead, and the row stays on one line. */
+#top .iconbtn{flex-shrink:0}
+#top .toggle{flex:0 1 auto;min-width:0}
+#top .toggle .toggle__opt{min-height:44px}
+@media (max-width:440px){
+  #top .row{gap:var(--sp-4,4px)}
+  #top .row:first-child{gap:var(--sp-8)}
+  #top .toggle .toggle__opt{padding:0 8px;font-size:14px;min-width:44px}
+  #top .iconbtn{width:44px;height:44px}
+}
