@@ -1,0 +1,76 @@
+/* App layout glue only. Every look comes from design-system/styles.css (tokens + components). */
+html,body{height:100%;overscroll-behavior:none}
+body{font-family:var(--font-body);color:var(--on-surface);background:var(--bg);-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+button{font-family:inherit;color:inherit;cursor:pointer}
+
+#app{position:fixed;inset:0;display:flex;flex-direction:column;max-width:720px;margin:0 auto;background:var(--bg);overflow:hidden}
+@media (min-width:721px){#app{border-inline:1px solid var(--border)}}
+#stage{position:relative;flex:1;min-height:0}
+.bottomnav{flex:none}
+
+/* ---- top controls: float over the map, sit in the flow on list views ---- */
+#top{z-index:1000;display:flex;flex-direction:column;gap:var(--sp-8);padding:max(var(--sp-12),env(safe-area-inset-top)) var(--sp-12) var(--sp-12)}
+#top .row{display:flex;align-items:center;gap:var(--sp-8)}
+#top .field{flex:1;min-width:0}
+body[data-view="map"] #top{position:absolute;left:0;right:0;top:0;padding-bottom:0;pointer-events:none}
+body[data-view="map"] #top .row>*{pointer-events:auto}
+body[data-view="favs"] #top{display:none}
+body:not([data-view="map"]) #top{background:var(--bg)}
+body[data-view="list"] #btn-locate{display:inline-flex}
+
+section[id^="view-"]{position:absolute;inset:0}
+#view-list,#view-favs{overflow-y:auto;overscroll-behavior:contain;padding-bottom:var(--sp-24)}
+.viewbar{display:flex;align-items:center;gap:var(--sp-12);justify-content:space-between;padding:var(--sp-4) var(--sp-12) var(--sp-8)}
+#view-favs .viewbar{padding-top:max(var(--sp-16),env(safe-area-inset-top))}
+.viewbar .toggle{flex:1;max-width:240px}
+.fresh-btn{border:0;background:none;min-height:var(--target-min);padding:0 var(--sp-4);text-align:right}
+.credit{text-align:center;padding:var(--sp-16)}
+.list li{border-bottom:1px solid var(--border-faint)}
+.list button.li{width:100%;border:0;background:none;text-align:left;font:inherit}
+.li__trail .price{margin-bottom:var(--sp-2)}
+.li__trail .level{margin-top:var(--sp-2)}
+.li__lead.fav{color:var(--pricey-ink)}
+.li__lead.fav .ico{fill:currentColor;--icon-size:16px}
+.more{display:flex;justify-content:center;padding:var(--sp-16)}
+.empty{padding:var(--sp-32) var(--sp-24);text-align:center;display:flex;flex-direction:column;align-items:center;gap:var(--sp-12);color:var(--muted)}
+.empty .ico{--icon-size:40px;color:var(--subtle)}
+.hint-card{margin:var(--sp-4) var(--sp-12) var(--sp-8)}
+
+/* ---- map ---- */
+#map{position:absolute;inset:0;z-index:0;isolation:isolate;background:var(--map-land);font-family:var(--font-body)}
+.leaflet-container{font-family:var(--font-body)}
+:root[data-theme="dark"] .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.82) contrast(.9) saturate(.7)}
+:root[data-theme="dark"] .leaflet-container{background:var(--map-land)}
+:root[data-theme="dark"] .leaflet-control-attribution{background:rgb(16 18 20 / .75);color:var(--muted)}
+:root[data-theme="dark"] .leaflet-control-attribution a{color:var(--secondary-ink)}
+.leaflet-control-attribution{font-size:10px}
+.lp-icon{background:none;border:0;overflow:visible}
+.lp-icon .pin,.lp-icon .cluster{pointer-events:auto}
+.lp-icon .cluster small{display:block;font:600 10px var(--font-body);color:var(--sign-muted);margin-top:var(--sp-2)}
+#best{position:absolute;left:var(--sp-12);right:var(--sp-12);bottom:calc(var(--sp-24) + var(--sp-8));z-index:1000}
+#best .card__row+.card__row{margin-top:var(--sp-12)}
+#best .card__row:first-child{justify-content:space-between}
+#best:focus-visible{outline:none;box-shadow:var(--focus-ring)}
+
+/* ---- loading ---- */
+#loading{position:absolute;inset:0;z-index:1100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--sp-12);background:var(--bg);color:var(--muted);transition:opacity var(--dur-base) var(--ease)}
+#loading.done{opacity:0;pointer-events:none}
+
+/* ---- bottom sheet ---- */
+#backdrop{position:absolute;inset:0;z-index:1200;animation:fade-in var(--dur-base) var(--ease) both}
+#sheet{position:absolute;left:0;right:0;bottom:0;z-index:1250;max-height:90%;display:flex;flex-direction:column;animation:sheet-up var(--dur-base) var(--ease) both}
+#sheet .sheet__scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:var(--sp-4) var(--layout-gutter) var(--sp-16)}
+#sheet .sheet__cta{padding:var(--sp-12) var(--layout-gutter) max(var(--sp-16),env(safe-area-inset-bottom));border-top:1px solid var(--border-faint);background:var(--surface)}
+#sheet .sheet__cta .t-caption{text-align:center;margin-top:var(--sp-8)}
+.sheet__bar{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-8)}
+.sheet__bar .stack{--gap:var(--sp-4)}
+@keyframes sheet-up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+.sheet .field{min-width:0}
+.form{display:flex;flex-direction:column;gap:var(--sp-16)}
+
+/* ---- toast ---- */
+#toast{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(72px + var(--sp-24) + env(safe-area-inset-bottom));z-index:1400;width:max-content;max-width:calc(100% - 24px)}
+#toast.top{bottom:auto;top:max(var(--sp-16),env(safe-area-inset-top))}
+.fresh{white-space:nowrap}
