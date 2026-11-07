@@ -792,7 +792,7 @@ function openFilters() {
         <div class="field field--outlined select"><label class="field__label" for="f-region">Région</label><div class="field__box"><select id="f-region">${opt('', 'Toutes les régions', state.region)}${regions.map((r) => opt(r, r, state.region)).join('')}</select></div></div>
         <div class="field field--outlined select"><label class="field__label" for="f-brand">Bannière</label><div class="field__box"><select id="f-brand">${opt('', 'Toutes les bannières', state.brand)}${brands.map((b) => opt(b, b, state.brand)).join('')}</select></div></div>
         <div class="field field--outlined"><label class="field__label" for="f-max">Prix maximum (¢/L)</label><div class="field__box"><input id="f-max" type="number" inputmode="decimal" min="0" step="0.1" placeholder="Aucun" value="${state.maxPrice ?? ''}"></div><div class="field__helper">S’applique au carburant choisi : ${FUELS[state.fuel]}.</div></div>
-        <div class="field field--outlined select"><label class="field__label" for="f-radius">Rayon de la liste</label><div class="field__box"><select id="f-radius">${[[5, '5 km'], [10, '10 km'], [25, '25 km'], [50, '50 km'], [0, 'Tout le Québec']].map(([v, l]) => opt(v, l, state.radius)).join('')}</select></div><div class="field__helper">Utilisé quand la position est activée.</div></div>
+        <div class="field field--outlined select"><label class="field__label" for="f-radius">Rayon de la liste</label><div class="field__box"><select id="f-radius">${[[5, '5 km'], [10, '10 km'], [25, '25 km'], [50, '50 km'], [0, 'Tout le Québec']].map(([v, l]) => opt(v, l, state.radius)).join('')}</select></div><div class="field__helper" id="f-radius-help"></div></div>
         <div class="field"><span class="field__label" id="f-theme-l">Thème</span>
           <div class="toggle toggle--block" role="group" aria-labelledby="f-theme-l" id="f-theme">${[['auto', 'Auto'], ['light', 'Jour'], ['dark', 'Nuit']].map(([v, l]) => `<button class="toggle__opt" data-theme-opt="${v}" aria-pressed="${state.theme === v}">${l}</button>`).join('')}</div></div>
       </div>
@@ -800,10 +800,11 @@ function openFilters() {
     <div class="sheet__cta">
       <div class="stack stack--row" style="--gap:var(--sp-8)">
         <button class="btn btn--outlined btn--lg" data-act="reset">Réinitialiser</button>
-        <button class="btn btn--contained btn--lg" style="flex:1" data-act="close" id="f-done">Voir ${visible.length} stations</button>
+        <button class="btn btn--contained btn--lg" style="flex:1" data-act="close" id="f-done">Voir ${listed.length} stations</button>
       </div>
       <div class="t-caption">Données : Régie de l’énergie du Québec · Carte © OpenStreetMap</div>
     </div>`, { label: 'Filtres et réglages' });
+  updateFiltersUI();
 }
 
 function updateFiltersUI() {
@@ -811,7 +812,9 @@ function updateFiltersUI() {
   $('#filters-dot').hidden = !active;
   $('#btn-filters').setAttribute('aria-label', active ? 'Filtres et réglages (actifs)' : 'Filtres et réglages');
   const done = $('#f-done');
-  if (done) done.textContent = `Voir ${visible.length} station${visible.length > 1 ? 's' : ''}`;
+  if (done) done.textContent = `Voir ${listed.length} station${listed.length > 1 ? 's' : ''}`;
+  const help = $('#f-radius-help');
+  if (help) help.textContent = !state.radius ? 'Aucune limite de distance.' : state.user ? `Stations à moins de ${state.radius} km de votre position.` : 'Le rayon s’applique dès que votre position est connue. Activez-la pour l’utiliser.';
 }
 
 // ---- render orchestration ------------------------------------------------------------------
@@ -906,7 +909,10 @@ document.addEventListener('change', (e) => {
   const id = e.target.id;
   if (id === 'f-region') state.region = e.target.value;
   else if (id === 'f-brand') state.brand = e.target.value;
-  else if (id === 'f-radius') { state.radius = +e.target.value; state.shown = PAGE; }
+  else if (id === 'f-radius') {
+    state.radius = +e.target.value; state.shown = PAGE;
+    if (state.radius && !state.user) { toast('Recherche de votre position pour appliquer le rayon…'); locate({ fly: false }); }
+  }
   else if (id === 'calc-l') return;
   else if (id === 'f-max') { const v = parseFloat(String(e.target.value).replace(',', '.')); state.maxPrice = Number.isFinite(v) && v > 0 ? v : null; }
   else return;
