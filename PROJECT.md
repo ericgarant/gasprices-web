@@ -117,3 +117,15 @@ The Régie only publishes current prices. A scheduled GitHub Actions job saves a
 ## Progress log
 
 - 2026-11-07: Analysed the Flutter project (no API key used anywhere; not under version control). Verified the data feed and CORS. Chose GitHub Pages hosting and the "Roadside price sign" design direction.
+- 2026-11-07: Phase 0 done. Repo `ericgarant/gasprices-web` created and pushed. Hourly snapshot job running; first snapshot saved 2026-11-07 09:51 (about 2,460 stations). GitHub Pages: to be turned on by Eric (Settings > Pages > main, root) before phase 2.
+
+## Working notes for Claude
+
+- Start each chat by connecting the GitHub repo `ericgarant/gasprices-web` and reading the latest `PROJECT.md` from it; the repo copy is newer than any uploaded copy.
+- Pull before working: the snapshot job commits to `main` every hour.
+- The Claude GitHub access can push and run workflows (REST `actions/workflows/.../dispatches`), but cannot create repos or change repo settings such as Pages.
+- Design plugins enabled on Eric's account: Mobile Design System. Built-in skill: frontend-design.
+
+## Next step
+
+Phase 1: use the Mobile Design System plugin (platform: cross-platform web PWA) to build the "Roadside price sign" design system and two concept screens: the map view and a station details sheet. Present them for Eric's review before writing app code.
