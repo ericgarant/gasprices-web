@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le Plein · Concept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="theme.js"></script>
+<style>
+/* concept-page chrome + layout glue only — the screens use styles.css component classes */
+body{font-family:var(--font-body);color:var(--on-surface);background:var(--bg);padding:84px 16px 80px;display:flex;flex-direction:column;align-items:center}
+.head{max-width:700px;text-align:center;margin-bottom:28px}
+.head p{color:var(--muted);font-size:15px;margin-top:10px;line-height:1.55}
+.two{display:flex;gap:40px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.col{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:100%}
+.col .label{font:700 12px var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.device{position:relative;width:360px;max-width:100%;height:740px;background:var(--bg);border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
+.caption{max-width:360px;font:13px/1.55 var(--font-body);color:var(--muted)}
+.caption b{color:var(--on-surface)}
+
+/* map placeholder layer (flat token fills) */
+.map{position:absolute;left:0;top:0;width:360px;height:740px}
+.map svg{position:absolute;inset:0;width:100%;height:100%}
+.m-land{fill:var(--map-land)}.m-park{fill:var(--map-park)}.m-water{fill:var(--map-water)}
+.m-river{fill:none;stroke:var(--map-water);stroke-width:12;stroke-linecap:round}
+.m-road{fill:none;stroke:var(--map-road);stroke-width:6;stroke-linecap:round}
+.m-major{fill:none;stroke:var(--map-major);stroke-width:10;stroke-linecap:round}
+.m-hwy{fill:none;stroke:var(--map-major);stroke-width:14;stroke-linecap:round}
+.m-note{position:absolute;left:8px;font:600 10px var(--font-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--subtle)}
+
+/* screen 1 glue */
+.s1-top{position:absolute;left:0;right:0;top:0;padding:var(--sp-12) var(--sp-12) 0;display:flex;flex-direction:column;gap:var(--sp-8);z-index:5}
+.s1-top .field{min-width:0;flex:1}
+.s1-row{display:flex;align-items:center;gap:var(--sp-8)}
+.s1-best{position:absolute;left:var(--sp-12);right:var(--sp-12);bottom:calc(72px + var(--sp-12));z-index:5}
+.device .bottomnav{position:absolute;left:0;right:0;bottom:0;z-index:6}
+
+/* screen 2 glue */
+.s2-map{position:relative;height:200px;flex:0 0 200px;overflow:hidden}
+.s2-map .map{left:72px;top:-150px}
+.s2-bar{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;padding:var(--sp-12);z-index:5}
+.s2-bar .stack{--gap:var(--sp-8)}
+.s2-sheet{flex:1;margin-top:calc(-1 * var(--sp-24));z-index:4;display:flex;flex-direction:column;min-height:0}
+.s2-scroll{flex:1;overflow:hidden;padding:var(--sp-4) var(--layout-gutter) 100px}
+.s2-cta{position:absolute;left:0;right:0;bottom:0;padding:var(--sp-12) var(--layout-gutter) var(--sp-16);background:var(--surface);border-top:1px solid var(--border-faint);z-index:6}
+.s2-cta .t-caption{text-align:center;margin-top:var(--sp-8)}
+
+.backlink{position:fixed;top:16px;left:16px;z-index:50;display:inline-flex;align-items:center;gap:6px;font:600 14px var(--font-body);text-decoration:none;color:var(--on-surface);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:8px 14px;box-shadow:var(--elev-1)}
+#themeSel{position:fixed;top:16px;right:16px;z-index:50;font:600 13px var(--font-body);border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:var(--surface);color:var(--on-surface)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-fuel" viewBox="0 0 24 24"><path d="M3 22h12M4 9h10"/><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"/><path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0V9.8a2 2 0 0 0-.6-1.4L18 5"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M14.1 5.6a2 2 0 0 0 1.8 0l3.7-1.9a1 1 0 0 1 1.4.9v12.8a1 1 0 0 1-.6.9l-4.5 2.3a2 2 0 0 1-1.8 0l-4.2-2.1a2 2 0 0 0-1.8 0l-3.7 1.8a1 1 0 0 1-1.4-.9V6.6a1 1 0 0 1 .6-.9l4.5-2.3a2 2 0 0 1 1.8 0z"/><path d="M15 5.8v15M9 3.2v15"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21.2l8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-directions" viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8z"/></symbol>
+  <symbol id="i-locate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+  <symbol id="i-sort" viewBox="0 0 24 24"><path d="M21 16l-4 4-4-4M17 20V4M3 8l4-4 4 4M7 4v16"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 2l10 5-10 5L2 7z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></symbol>
+  <symbol id="i-radar" viewBox="0 0 24 24"><path d="M19.07 4.93A10 10 0 1 0 22 12"/><path d="M16.24 7.76A6 6 0 1 0 18 12"/><circle cx="12" cy="12" r="2"/><path d="M13.4 10.6l5.7-5.7"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-offline" viewBox="0 0 24 24"><path d="M12 20h.01M8.5 16.4a5 5 0 0 1 7 0M2 8.8a15 15 0 0 1 4.2-2.6M10.7 5c4-.4 8.1.9 11.3 3.8M16.9 11.3a10 10 0 0 1 2.2 1.7M5 13a10 10 0 0 1 5.2-2.8M2 2l20 20"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M21.7 18l-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></symbol>
+  <symbol id="i-trend-down" viewBox="0 0 24 24"><path d="M22 17l-8.5-8.5-5 5L2 7"/><path d="M16 17h6v-6"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M16 6l-4-4-4 4M12 2v13"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="14" height="14" rx="2"/><path d="M4 16a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6M10 14L21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></symbol>
+  <symbol id="i-more-v" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.8 21l1.2-6.9-5-4.9 6.9-1z"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
+  <symbol id="i-store" viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/><path d="M5 12v9h14v-9M10 21v-5h4v5"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+</svg>
+<a class="backlink" href="index.html"><svg class="ico ico--sm"><use href="#i-back"/></svg> Back to style guide</a>
+<select id="themeSel" title="Preview theme" aria-label="Theme"><option value="">Jour (light)</option><option value="dark">Nuit (dark)</option></select>
+
+<!-- reusable map placeholder (cloned into both screens by the script at the bottom) -->
+<template id="mapTpl">
+  <div class="map" aria-hidden="true">
+    <svg viewBox="0 0 360 740" preserveAspectRatio="none">
+      <rect class="m-land" width="360" height="740"/>
+      <rect class="m-park" x="236" y="478" width="70" height="66" rx="18"/>
+      <rect class="m-park" x="40" y="150" width="54" height="70" rx="16"/>
+      <path class="m-road" d="M0 250 L360 190 M0 330 L360 270 M0 520 L360 460 M0 600 L360 540 M60 0 L90 740 M180 0 L210 740 M260 0 L280 740 M0 140 L360 80"/>
+      <path class="m-river" d="M0 470 C 80 455, 150 470, 220 430 S 280 395, 295 389 C 310 380, 325 360, 330 300 S 345 120, 352 0 M330 300 C 335 420, 320 560, 340 740"/>
+      <ellipse class="m-water" cx="292" cy="392" rx="20" ry="34"/>
+      <path class="m-major" d="M0 431 L360 356"/>
+      <path class="m-major" d="M0 398 L229 314 L360 286"/>
+      <path class="m-major" d="M115 500 L344 398"/>
+      <path class="m-major" d="M98 740 L121 184 L126 0"/>
+      <path class="m-hwy" d="M0 640 C 120 610, 240 600, 360 560"/>
+    </svg>
+  </div>
+</template>
+
+<div class="head">
+  <div class="t-overline">Concept · Phase 1</div>
+  <h1 class="t-h2" style="margin-top:6px">Carte + fiche station</h1>
+  <p>Two static screens composed only from the design-system components, with real Sherbrooke prices from the Régie snapshot of 7 nov. 2026, 9 h 50 (Régulier). Price levels are relative to the area average of 182,0¢. The map is a flat placeholder; real tiles come in phase 2.</p>
+</div>
+
+<div class="two">
+  <!-- ===================== SCREEN 1 — MAP VIEW ===================== -->
+  <div class="col">
+    <div class="label">First view · Carte</div>
+    <div class="device" id="s1">
+      <div data-map></div>
+      <span class="m-note" style="bottom:calc(72px + 140px)">Aperçu de carte · tuiles à l’étape 2</span>
+
+      <!-- pins: real stations projected at scale; dense spots clustered -->
+      <div class="pin pin--cheap pin--best" style="left:108px;top:259px" aria-label="Costco Sherbrooke, 171,9 cents, le moins cher"><span class="pin__plate">171<small>9</small></span><span class="pin__stalk"></span></div>
+      <div class="pin pin--pricey" style="left:207px;top:325px" aria-label="Esso, 184,9 cents"><span class="pin__plate">184<small>9</small></span><span class="pin__stalk"></span></div>
+      <div class="pin pin--cheap" style="left:251px;top:375px" aria-label="Harnois, 179,9 cents"><span class="pin__plate">179<small>9</small></span><span class="pin__stalk"></span></div>
+      <div class="cluster" style="left:158px;top:392px"><div><b>181⁹</b><span>6 stations</span></div></div>
+      <div class="cluster" style="left:30px;top:392px"><div><b>179⁹</b><span>3</span></div></div>
+      <div class="pin pin--avg" style="left:140px;top:482px" aria-label="Petro-Canada, 181,9 cents"><span class="pin__plate">181<small>9</small></span><span class="pin__stalk"></span></div>
+      <div class="pin pin--pricey" style="left:322px;top:399px" aria-label="Couche-Tard, 184,9 cents"><span class="pin__plate">184<small>9</small></span><span class="pin__stalk"></span></div>
+      <div class="cluster" style="left:321px;top:462px"><div><b>181⁹</b><span>2</span></div></div>
+      <div class="me" style="left:219px;top:389px" aria-label="Votre position"></div>
+
+      <!-- floating top controls -->
+      <div class="s1-top">
+        <div class="s1-row">
+          <div class="field field--search"><div class="field__box"><svg class="ico"><use href="#i-search"/></svg><input placeholder="Ville, adresse ou bannière" aria-label="Rechercher"></div></div>
+          <span class="badge-wrap"><button class="iconbtn iconbtn--tonal" aria-label="Filtres (1 actif)"><svg class="ico"><use href="#i-filter"/></svg></button><span class="badge badge--dot"></span></span>
+        </div>
+        <div class="s1-row">
+          <div class="toggle toggle--float" role="group" aria-label="Carburant"><button class="toggle__opt" aria-pressed="true">Régulier</button><button class="toggle__opt" aria-pressed="false">Super</button><button class="toggle__opt" aria-pressed="false">Diesel</button></div>
+          <span class="spacer"></span>
+          <button class="iconbtn iconbtn--tonal" aria-label="Ma position"><svg class="ico"><use href="#i-locate"/></svg></button>
+        </div>
+      </div>
+
+      <!-- the one focal action: cheapest nearby -->
+      <div class="card card--elevated card--action s1-best">
+        <div class="card__row" style="justify-content:space-between">
+          <span class="t-overline">Le moins cher à 5 km</span>
+          <span class="fresh"><svg class="ico"><use href="#i-clock"/></svg>il y a 3 min</span>
+        </div>
+        <div class="card__row" style="margin-top:var(--sp-12)">
+          <span class="avatar">Co</span>
+          <div style="flex:1;min-width:0"><div class="card__title">Costco Sherbrooke</div><div class="card__meta">4,1 km · <span class="level level--cheap" style="vertical-align:middle">Bas prix</span></div></div>
+          <span class="price price--lg price--cheap" aria-label="171,9 cents le litre">171<span class="price__tenth">9</span></span>
+        </div>
+      </div>
+
+      <nav class="bottomnav">
+        <button class="bottomnav__item" aria-current="page"><span class="pill"><svg class="ico"><use href="#i-map"/></svg></span>Carte</button>
+        <button class="bottomnav__item"><span class="pill"><svg class="ico"><use href="#i-list"/></svg></span>Liste</button>
+        <button class="bottomnav__item"><span class="pill"><svg class="ico"><use href="#i-heart"/></svg></span>Favoris</button>
+      </nav>
+    </div>
+    <p class="caption"><b>Uses:</b> Text field (search) · Icon button + Badge · Toggle button (fuel) · Price pin · Cluster · Card · Price · Price level · Freshness · Bottom navigation.</p>
+  </div>
+
+  <!-- ===================== SCREEN 2 — STATION SHEET ===================== -->
+  <div class="col">
+    <div class="label">Detail · Fiche station</div>
+    <div class="device" id="s2">
+      <div class="s2-map">
+        <div data-map></div>
+        <div class="pin pin--cheap pin--selected" style="left:180px;top:109px"><span class="pin__plate">171<small>9</small></span><span class="pin__stalk"></span></div>
+        
+        <div class="s2-bar">
+          <button class="iconbtn iconbtn--tonal" aria-label="Retour à la carte"><svg class="ico"><use href="#i-back"/></svg></button>
+          <div class="stack stack--row">
+            <button class="iconbtn iconbtn--tonal" aria-label="Partager"><svg class="ico"><use href="#i-share"/></svg></button>
+            <button class="iconbtn iconbtn--tonal" aria-pressed="true" aria-label="Retirer des favoris"><svg class="ico"><use href="#i-heart"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sheet s2-sheet">
+        <span class="sheet__grab"></span>
+        <div class="s2-scroll stack" style="--gap:var(--sp-16)">
+          <div class="card__row">
+            <span class="avatar avatar--lg">Co</span>
+            <div style="flex:1;min-width:0">
+              <div class="t-h3">Costco Sherbrooke</div>
+              <div class="card__meta">3800 boul. Monseigneur-Fortier · 4,1 km</div>
+            </div>
+          </div>
+          <div class="card__row" style="justify-content:space-between">
+            <span class="level level--cheap">Bas prix</span>
+            <span class="fresh"><svg class="ico"><use href="#i-clock"/></svg>Mis à jour il y a 3 min</span>
+          </div>
+
+          <div class="sign">
+            <div class="sign__head"><span>Prix affichés</span><span>¢ / litre</span></div>
+            <div class="sign__row is-current"><div class="sign__fuel">Régulier<small>10,1¢ sous la moyenne de Sherbrooke</small></div><span class="price price--lg price--cheap" aria-label="171,9 cents le litre">171<span class="price__tenth">9</span></span></div>
+            <div class="sign__row"><div class="sign__fuel">Super</div><span class="price price--md" aria-label="191,9 cents le litre">191<span class="price__tenth">9</span></span></div>
+            <div class="sign__row"><div class="sign__fuel">Diesel</div><span class="price price--na">NON DISPONIBLE</span></div>
+          </div>
+
+          <div class="card card--outlined">
+            <div class="card__row" style="justify-content:space-between;align-items:flex-end">
+              <div><div class="t-overline">Plein de 50 L</div><div class="card__meta" style="max-width:180px">de moins qu’au prix moyen de Sherbrooke</div></div>
+              <div class="t-h3 tnum" style="color:var(--cheap-ink)">5,05 $</div>
+            </div>
+          </div>
+
+          <div class="accordion"><details><summary><svg class="ico"><use href="#i-info"/></svg>Détails de la station<svg class="ico"><use href="#i-chevron-down"/></svg></summary><div class="acc-body">Bannière : Costco · Région : Estrie</div></details></div>
+        </div>
+      </div>
+
+      <div class="s2-cta">
+        <button class="btn btn--contained btn--lg btn--block"><svg class="ico"><use href="#i-directions"/></svg>Itinéraire</button>
+        <div class="t-caption">Ouvre Apple Plans ou Google Maps · Données : Régie de l’énergie du Québec</div>
+      </div>
+    </div>
+    <p class="caption"><b>Uses:</b> Station sheet · Icon button (tonal, toggle) · Avatar · Typography · Price level · Freshness · Price sign · Card (outlined) · Accordion · Button (contained, lg).</p>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('[data-map]').forEach(slot=>slot.replaceWith(document.getElementById('mapTpl').content.cloneNode(true)));
+</script>
+</body>
+</html>

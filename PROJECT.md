@@ -118,6 +118,7 @@ The Régie only publishes current prices. A scheduled GitHub Actions job saves a
 
 - 2026-11-07: Analysed the Flutter project (no API key used anywhere; not under version control). Verified the data feed and CORS. Chose GitHub Pages hosting and the "Roadside price sign" design direction.
 - 2026-11-07: Phase 0 done. Repo `ericgarant/gasprices-web` created and pushed. Hourly snapshot job running; first snapshot saved 2026-11-07 09:51 (about 2,460 stations). GitHub Pages: to be turned on by Eric (Settings > Pages > main, root) before phase 2.
+- 2026-11-07: Phase 1 drafted in `design-system/` (branch `design-system-phase1`): "Panneau de prix" tokens (light + dark), 47 components (MUI catalogue + price, price sign, pin, station sheet, freshness, fuel gauge, radar), concept screens for the map and the station sheet. Eric kept the theme on 2026-11-07 (PR #1).
 
 ## Working notes for Claude
 
@@ -128,4 +129,4 @@ The Régie only publishes current prices. A scheduled GitHub Actions job saves a
 
 ## Next step
 
-Phase 1: use the Mobile Design System plugin (platform: cross-platform web PWA) to build the "Roadside price sign" design system and two concept screens: the map view and a station details sheet. Present them for Eric's review before writing app code.
+Phase 2: build the core app on top of `design-system/styles.css` (link it, don't copy values). Eric turns on GitHub Pages first (Settings > Pages > main, root). The concept screens in `design-system/concept.html` are the reference for the map view and the station sheet.
