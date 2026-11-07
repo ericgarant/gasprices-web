@@ -6,6 +6,7 @@
 //   data/history/YYYY-MM-DD.json  per-day price changes: id -> [[ "HH:MM", reg, sup, dsl ], ...]
 //                                 a row is added only when a station's prices change
 //   data/history/regions.json     hourly averages per region (last 90 days)
+//   data/history/days.json        list of the days that have a file (the app reads the latest ones)
 //
 // Prices are in cents per litre; null means not available.
 // Set SNAPSHOT_SOURCE to a local file path to run against saved data (for testing).
@@ -100,6 +101,8 @@ async function main() {
   await writeFile(join(DIR, 'stations.json'), JSON.stringify(index));
   await writeFile(dayPath, JSON.stringify(dayFile));
   await writeFile(join(DIR, 'regions.json'), JSON.stringify(regions));
+  const days = await readJson(join(DIR, 'days.json'), []);
+  if (!days.includes(day)) await writeFile(join(DIR, 'days.json'), JSON.stringify([...days, day].sort()));
   console.log(`${stamp}: ${Object.keys(index).length} stations indexed, ${changed} price changes saved.`);
 }
 

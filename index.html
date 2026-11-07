@@ -48,6 +48,7 @@ if(d)document.documentElement.setAttribute('data-theme','dark');})();
   <symbol id="i-alert" viewBox="0 0 24 24"><path d="M21.7 18l-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3z"/><path d="M12 9v4M12 17h.01"/></symbol>
   <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></symbol>
   <symbol id="i-trend-down" viewBox="0 0 24 24"><path d="M22 17l-8.5-8.5-5 5L2 7"/><path d="M16 17h6v-6"/></symbol>
+  <symbol id="i-trend-up" viewBox="0 0 24 24"><path d="M22 7l-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
   <symbol id="i-share" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M16 6l-4-4-4 4M12 2v13"/></symbol>
   <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="14" height="14" rx="2"/><path d="M4 16a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2"/></symbol>
   <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6M10 14L21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
@@ -82,6 +83,8 @@ if(d)document.documentElement.setAttribute('data-theme','dark');})();
         <button class="toggle__opt" data-fuel="2" aria-pressed="false">Diesel</button>
       </div>
       <span class="spacer"></span>
+      <button id="btn-radar" class="iconbtn iconbtn--tonal" aria-label="Radar des aubaines près de moi"><svg class="ico" aria-hidden="true"><use href="#i-radar"/></svg></button>
+      <button id="btn-heat" class="iconbtn iconbtn--tonal" aria-label="Carte de chaleur des prix" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-layers"/></svg></button>
       <button id="btn-locate" class="iconbtn iconbtn--tonal" aria-label="Ma position"><svg class="ico" aria-hidden="true"><use href="#i-locate"/></svg></button>
     </div>
   </header>
@@ -89,6 +92,7 @@ if(d)document.documentElement.setAttribute('data-theme','dark');})();
   <main id="stage">
     <section id="view-map" aria-label="Carte">
       <div id="map"></div>
+      <div id="heat-legend" class="heat-legend" hidden><span class="heat-legend__t">Prix relatifs à la région</span><span class="heat-legend__bar" aria-hidden="true"></span><span class="heat-legend__l"><span>Bas</span><span>Moyen</span><span>Élevé</span></span></div>
       <div id="best" class="card card--elevated card--action" role="button" tabindex="0" hidden></div>
     </section>
 
@@ -112,15 +116,15 @@ if(d)document.documentElement.setAttribute('data-theme','dark');})();
     </section>
 
     <div id="loading" role="status">
-      <svg class="spinner" viewBox="0 0 48 48" aria-hidden="true"><circle class="track" cx="24" cy="24" r="20"/><circle cx="24" cy="24" r="20"/></svg>
-      <span class="t-subtitle2">Chargement des prix…</span>
+      <div class="gauge" aria-hidden="true"><svg viewBox="0 0 120 70"><path class="arc" d="M10 60a50 50 0 0 1 100 0"/><path class="ticks" d="M14 44l6 3M60 14v7M106 44l-6 3M28 24l5 5M92 24l-5 5"/><line class="needle" x1="60" y1="60" x2="60" y2="20"/><circle class="hub" cx="60" cy="60" r="6"/><text class="lbl" x="4" y="70">E</text><text class="lbl" x="108" y="70">F</text></svg></div>
+      <span class="t-subtitle2">Le plein de prix en cours…</span>
     </div>
   </main>
 
   <nav class="bottomnav" aria-label="Navigation">
     <button class="bottomnav__item" data-nav="map" aria-current="page"><span class="pill"><svg class="ico" aria-hidden="true"><use href="#i-map"/></svg></span>Carte</button>
     <button class="bottomnav__item" data-nav="list"><span class="pill"><svg class="ico" aria-hidden="true"><use href="#i-list"/></svg></span>Liste</button>
-    <button class="bottomnav__item" data-nav="favs"><span class="pill"><svg class="ico" aria-hidden="true"><use href="#i-heart"/></svg></span>Favoris</button>
+    <button class="bottomnav__item" data-nav="favs"><span class="pill badge-wrap"><svg class="ico" aria-hidden="true"><use href="#i-heart"/></svg><span id="favs-dot" class="badge badge--dot" hidden></span></span>Favoris</button>
   </nav>
 
   <div id="backdrop" class="backdrop" hidden></div>
