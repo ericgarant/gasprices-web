@@ -47,7 +47,7 @@ let heatLayer = null;
 const celebrated = new Set(); // best-price confetti already played this session
 const announced = new Set(); // price-watch hits already announced this session
 let visible = []; // filters applied (not radius), current fuel has a price
-let listed = []; // visible + radius + search, sorted
+let listed = []; // visible + radius, sorted (feeds the list and the map pins)
 
 // ---- theme ---------------------------------------------------------------------------------
 const mqDark = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
@@ -204,7 +204,7 @@ function syncPins() {
   const fi = state.fuel;
   const want = new Set();
   const add = [];
-  for (const s of visible) {
+  for (const s of listed) {
     want.add(s.key);
     let m = markers.get(s.key);
     const p = s.prices[fi];
@@ -232,7 +232,7 @@ function renderBest() {
   if (!map || !state.data || state.view !== 'map') { el.hidden = true; return; }
   const b = map.getBounds();
   let best = null;
-  for (const s of visible) {
+  for (const s of listed) {
     if (!b.contains([s.lat, s.lng])) continue;
     const p = s.prices[state.fuel];
     if (!best || p < best.prices[state.fuel]) best = s;
@@ -938,8 +938,8 @@ $('#q').addEventListener('keydown', (e) => {
   $('#q').blur();
   state.q = $('#q').value;
   renderAll();
-  if (state.view === 'map' && map && state.q.trim() && visible.length) {
-    const b = L.latLngBounds(visible.slice(0, 400).map((s) => [s.lat, s.lng]));
+  if (state.view === 'map' && map && state.q.trim() && listed.length) {
+    const b = L.latLngBounds(listed.slice(0, 400).map((s) => [s.lat, s.lng]));
     map.fitBounds(b, { padding: [48, 48], maxZoom: 14 });
   }
 });
