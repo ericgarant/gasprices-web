@@ -14,11 +14,13 @@ A fun, fast, installable mobile web app (PWA) for finding the cheapest gas in Qu
 - Plain HTML, CSS and JavaScript (ES modules). No build step, no framework.
 - Libraries only from a CDN, and only when they earn their place (Leaflet for the map).
 - Every change is committed to GitHub; the repo is the source of truth.
-- Animations are short (under ~400 ms), never block the user, and are disabled when the phone's "reduce motion" setting is on.
+- Animations are short (under ~400 ms), never block the user, and are disabled when the phone's "reduce motion" setting is on. Known exceptions, undecided: see "Open questions".
+- Brand badges show the brand name as text on the brand's colour. No logo art (trademark and Play Store caution).
+- Model rule for Claude work on this project: Sonnet 5.5 by default; Opus 5.5 only where it gives a big gain (design, tricky architecture, hard debugging).
 
 ## Hosting
 
-- GitHub repo `ericgarant/gasprices-web`, served by GitHub Pages (free, HTTPS).
+- GitHub repo `ericgarant/gasprices-web`, served by GitHub Pages from `main` (root), free, HTTPS. Live: https://ericgarant.github.io/gasprices-web/
 - HTTPS is required for GPS, install-to-home-screen and offline mode.
 
 ## Data source (verified 2026-11-07)
@@ -103,16 +105,18 @@ Inspired by the big price signs at Québec gas stations: the price is the hero.
 
 ## Price history
 
-The Régie only publishes current prices. A scheduled GitHub Actions job saves a compact snapshot every hour into `data/history/`, so history builds up from the day it starts.
+The Régie only publishes current prices. A scheduled GitHub Actions job (`.github/workflows/snapshot.yml`, cron `17 * * * *`) saves a compact snapshot every hour into `data/history/`, so history builds up from the day it starts. The app reads it through the `days.json` index.
+
+Scheduler status (checked 2026-11-07 20:17 UTC): the workflow has only ever run twice, both by manual dispatch (14:51 and 18:54 UTC). The original `:51` schedule never fired on its own. The cron was moved to `:17` in PR #4 (18:56 UTC) to re-register it, and no scheduled run had appeared by 20:17 UTC. Check the Actions tab after the next few `:17` slots; if still nothing, trigger by dispatch or use another scheduler.
 
 ## Phases
 
-0. Setup: repo, Pages, Claude Project, this file, snapshot job.
-1. Design system and two concept screens, for review.
-2. Core app.
-3. Fun features.
-4. Polish and audits (performance, accessibility, animation), test installed on a phone.
-5. Optional: Play Store package.
+0. Setup: repo, Pages, Claude Project, this file, snapshot job. **Done.**
+1. Design system and two concept screens, for review. **Done** (PR #1).
+2. Core app. **Done** (PR #2), live on GitHub Pages.
+3. Fun features. **Done** (PR #3).
+4. Polish and audits (performance, accessibility, animation), test installed on a phone. **Mostly done** (PR #4 and fixes #5 to #9); phone testing under way.
+5. Optional: Play Store package, maybe a live-price Android widget. **Not started.**
 
 ## Progress log
 
@@ -124,13 +128,28 @@ The Régie only publishes current prices. A scheduled GitHub Actions job saves a
 
 - 2026-11-07: Phase 3 fun features built (PR on branch `claude/project-thread-etkntx`): fuel-gauge loader, deal radar (top 5 within 10 km, highlighted on the map), savings calculator (litres, vs closest station and regional average), best-price moment (confetti + vibration), heat map toggle, price history chart per station (reads `data/history/`, new `days.json` index written by the snapshot job), price watch on favourites (checked at each refresh, dot on the Favoris tab), share card image. Confetti and the radar sweep are the only animations over ~400 ms (about 0.9 s and 2 x 1.4 s); all are off under "reduce motion".
 
+- 2026-11-07: Phase 1 merged (PR #1), Phase 2 merged (PR #2): GitHub Pages turned on and the app is live at https://ericgarant.github.io/gasprices-web/. Phase 3 merged (PR #3).
+- 2026-11-07: Phase 4 (PR #4): focus trapped in sheets; snapshot cron moved from `:51` to `:17` because it had never fired on schedule.
+- 2026-11-07: Fixes after first use: the list radius filter explains itself and asks for GPS (PR #5); the service worker cache made updates slow, so it now bypasses the HTTP cache and deploys show up right away, and "Voir N stations" opens the list when a radius is active (PR #6); the map pins follow the radius (PR #7).
+- 2026-11-07: QA: 39 Playwright end-to-end tests in `tests/` (35 at PR #8, 4 brand-badge tests added in PR #9) (run: `cd tests && npm install && npm test`), plus a fix so the top buttons no longer squash on narrow phones (PR #8).
+- 2026-11-07: Brand badges: coloured avatars, name badges and pin stripes, brand name as text on the brand's colour, no logos (PR #9).
+- 2026-11-07: Eric and a friend (iPhone) are testing on their phones. Model rule set: Sonnet 5.5 by default, Opus 5.5 only for a big gain.
+
+## Open questions
+
+- Animation length: the confetti (about 0.9 s) and the radar sweep (2 x 1.4 s) exceed the ~400 ms rule. Eric has not decided whether to shorten them. Both are off under "reduce motion".
+- Snapshot cron: confirm that scheduled runs now fire at `:17` (none seen yet; see Price history).
+- Phase 5 (Play Store, live-price Android widget): optional, go or no-go is Eric's call.
+
 ## Working notes for Claude
 
 - Start each chat by connecting the GitHub repo `ericgarant/gasprices-web` and reading the latest `PROJECT.md` from it; the repo copy is newer than any uploaded copy.
 - Pull before working: the snapshot job commits to `main` every hour.
+- Tests: `cd tests && npm install && npm test` (see `tests/README.md`). Run them before opening a PR that touches `js/`, `app.css` or `sw.js`.
+- Open a PR for every change and wait for Eric to say "merge it" before merging.
 - The Claude GitHub access can push and run workflows (REST `actions/workflows/.../dispatches`), but cannot create repos or change repo settings such as Pages.
 - Design plugins enabled on Eric's account: Mobile Design System. Built-in skill: frontend-design.
 
 ## Next step
 
-Phase 4: polish and audits (performance, accessibility, animation), test installed on a phone. Phase 3 is built. Earlier note: build the core app on top of `design-system/styles.css` (link it, don't copy values). Eric turns on GitHub Pages first (Settings > Pages > main, root). The concept screens in `design-system/concept.html` are the reference for the map view and the station sheet.
+Finish phone testing (Eric and a friend on iPhone) and fix what they find. Then decide the open questions above (animation length, snapshot cron). Phase 5 is optional and not started.
