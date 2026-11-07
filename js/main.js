@@ -943,6 +943,17 @@ document.addEventListener('input', (e) => {
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeSheet();
+  // Keep keyboard focus inside the open sheet (it is a modal dialog).
+  if (e.key === 'Tab') {
+    const sh = $('#sheet');
+    if (sh.hidden) return;
+    const f = [...sh.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter((x) => !x.disabled && x.offsetParent !== null);
+    if (!f.length) return;
+    const a = document.activeElement;
+    if (!sh.contains(a)) { e.preventDefault(); f[0].focus(); }
+    else if (e.shiftKey && a === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && a === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  }
 });
 
 // ---- lifecycle -----------------------------------------------------------------------------
