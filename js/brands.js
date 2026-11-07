@@ -1,6 +1,7 @@
 // Brand badges: the brand name in text on the brand's colour. No logo art (trademark caution).
 // Colours are [background, text]; every pair is checked for WCAG AA (4.5:1) in the e2e tests.
 import { norm, esc } from './util.js';
+import { brandLabel, INDEPENDENT } from './i18n.js';
 
 export const BRAND_COLORS = {
   'esso': ['#0B3D91', '#FFFFFF'],
@@ -23,7 +24,7 @@ export const BRAND_COLORS = {
 const NEUTRAL = ['#EAE3D4', '#4A443A']; // same as --muted-surface / --on-muted-surface
 
 const isNone = (b) => !b || /^(independant|aucun|)$/.test(norm(b));
-export const badgeLabel = (b) => (isNone(b) ? 'Indépendant' : b);
+export const badgeLabel = (b) => (isNone(b) ? brandLabel(INDEPENDENT) : b);
 export function brandColors(b) { return (!isNone(b) && BRAND_COLORS[norm(b)]) || NEUTRAL; }
 
 /** Small badge: brand name as text. `cls` adds modifiers (e.g. 'brand-badge--sm'). */

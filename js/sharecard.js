@@ -1,5 +1,6 @@
 // Share card: a pump-sign style image drawn on a canvas, e.g. "Le moins cher à Magog en ce moment : 158,9¢".
 import { fmt1, splitPrice } from './util.js';
+import { t } from './i18n.js';
 
 const W = 1080, H = 1350;
 
@@ -41,7 +42,7 @@ export async function renderShareCard(opts) {
 
   g.textBaseline = 'alphabetic'; g.fillStyle = '#F1EDE4'; g.textAlign = 'left';
   g.font = disp(64); g.fillText('LE PLEIN', 96, 150);
-  g.font = body(30, 500); g.fillStyle = '#8E897F'; g.textAlign = 'right'; g.fillText('PRIX DE L’ESSENCE · QUÉBEC', W - 96, 148);
+  g.font = body(30, 500); g.fillStyle = '#8E897F'; g.textAlign = 'right'; g.fillText(t('card.tag'), W - 96, 148);
 
   g.textAlign = 'center'; g.fillStyle = '#F1EDE4';
   fit(g, opts.headline.toUpperCase(), W - 200, disp, 112, 64);
@@ -68,7 +69,7 @@ export async function renderShareCard(opts) {
   g.font = body(46, 700); g.fillText(`${opts.fuel} · ${opts.name}`.slice(0, 44), W / 2, 1060);
   g.font = body(36, 500); g.fillStyle = '#B9B3A7'; g.fillText(opts.addr.slice(0, 54), W / 2, 1112);
   g.font = body(30, 500); g.fillStyle = '#8E897F'; g.fillText(opts.when, W / 2, 1170);
-  g.font = body(26, 500); g.fillText('Données : Régie de l’énergie du Québec', W / 2, 1236);
+  g.font = body(26, 500); g.fillText(t('credit'), W / 2, 1236);
   g.fillText('ericgarant.github.io/gasprices-web', W / 2, 1274);
 
   return new Promise((res, rej) => cv.toBlob((b) => (b ? res(b) : rej(new Error('toBlob'))), 'image/png'));

@@ -1,7 +1,7 @@
 {
-  "name": "Le Plein — prix de l’essence au Québec",
+  "name": "Le Plein — prix de l’essence / gas prices, Québec",
   "short_name": "Le Plein",
-  "description": "Trouvez l’essence la moins chère près de vous au Québec.",
+  "description": "Trouvez l’essence la moins chère près de vous au Québec. Find the cheapest gas near you in Québec.",
   "lang": "fr-CA",
   "start_url": "./",
   "scope": "./",

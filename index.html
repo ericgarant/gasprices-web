@@ -73,65 +73,65 @@ if(d)document.documentElement.setAttribute('data-theme','dark');})();
 <div id="app">
   <header id="top">
     <div class="row">
-      <div class="field field--search"><div class="field__box"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><input id="q" type="search" placeholder="Ville, adresse ou bannière" aria-label="Rechercher" autocomplete="off" enterkeyhint="search"></div></div>
-      <span class="badge-wrap"><button id="btn-filters" class="iconbtn iconbtn--tonal" aria-label="Filtres et réglages"><svg class="ico" aria-hidden="true"><use href="#i-filter"/></svg></button><span id="filters-dot" class="badge badge--dot" hidden></span></span>
+      <div class="field field--search"><div class="field__box"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><input id="q" type="search" placeholder="Ville, adresse ou bannière" aria-label="Rechercher" data-i18n-attr="placeholder:search.placeholder;aria-label:search.aria" autocomplete="off" enterkeyhint="search"></div></div>
+      <span class="badge-wrap"><button id="btn-filters" class="iconbtn iconbtn--tonal" aria-label="Filtres et réglages" data-i18n-attr="aria-label:filters.aria"><svg class="ico" aria-hidden="true"><use href="#i-filter"/></svg></button><span id="filters-dot" class="badge badge--dot" hidden></span></span>
     </div>
     <div class="row">
-      <div class="toggle toggle--float" role="group" aria-label="Carburant" id="fuel">
-        <button class="toggle__opt" data-fuel="0" aria-pressed="true">Régulier</button>
-        <button class="toggle__opt" data-fuel="1" aria-pressed="false">Super</button>
-        <button class="toggle__opt" data-fuel="2" aria-pressed="false">Diesel</button>
+      <div class="toggle toggle--float" role="group" aria-label="Carburant" data-i18n-attr="aria-label:fuel.group" id="fuel">
+        <button class="toggle__opt" data-fuel="0" aria-pressed="true" data-i18n="fuel.0">Régulier</button>
+        <button class="toggle__opt" data-fuel="1" aria-pressed="false" data-i18n="fuel.1">Super</button>
+        <button class="toggle__opt" data-fuel="2" aria-pressed="false" data-i18n="fuel.2">Diesel</button>
       </div>
       <span class="spacer"></span>
-      <button id="btn-radar" class="iconbtn iconbtn--tonal" aria-label="Radar des aubaines près de moi"><svg class="ico" aria-hidden="true"><use href="#i-radar"/></svg></button>
-      <button id="btn-heat" class="iconbtn iconbtn--tonal" aria-label="Carte de chaleur des prix" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-layers"/></svg></button>
-      <button id="btn-locate" class="iconbtn iconbtn--tonal" aria-label="Ma position"><svg class="ico" aria-hidden="true"><use href="#i-locate"/></svg></button>
+      <button id="btn-radar" class="iconbtn iconbtn--tonal" aria-label="Radar des aubaines près de moi" data-i18n-attr="aria-label:radar.aria"><svg class="ico" aria-hidden="true"><use href="#i-radar"/></svg></button>
+      <button id="btn-heat" class="iconbtn iconbtn--tonal" aria-label="Carte de chaleur des prix" data-i18n-attr="aria-label:heat.aria" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-layers"/></svg></button>
+      <button id="btn-locate" class="iconbtn iconbtn--tonal" aria-label="Ma position" data-i18n-attr="aria-label:locate.aria"><svg class="ico" aria-hidden="true"><use href="#i-locate"/></svg></button>
     </div>
   </header>
 
   <main id="stage">
-    <section id="view-map" aria-label="Carte">
+    <section id="view-map" aria-label="Carte" data-i18n-attr="aria-label:nav.map">
       <div id="map"></div>
-      <div id="heat-legend" class="heat-legend" hidden><span class="heat-legend__t">Prix relatifs à la région</span><span class="heat-legend__bar" aria-hidden="true"></span><span class="heat-legend__l"><span>Bas</span><span>Moyen</span><span>Élevé</span></span></div>
+      <div id="heat-legend" class="heat-legend" hidden><span class="heat-legend__t" data-i18n="heat.title">Prix relatifs à la région</span><span class="heat-legend__bar" aria-hidden="true"></span><span class="heat-legend__l"><span data-i18n="heat.low">Bas</span><span data-i18n="heat.mid">Moyen</span><span data-i18n="heat.high">Élevé</span></span></div>
       <div id="best" class="card card--elevated card--action" role="button" tabindex="0" hidden></div>
     </section>
 
-    <section id="view-list" aria-label="Liste des stations" hidden>
+    <section id="view-list" aria-label="Liste des stations" data-i18n-attr="aria-label:view.list" hidden>
       <div class="viewbar">
-        <div class="toggle toggle--block" role="group" aria-label="Tri" id="sort">
-          <button class="toggle__opt" data-sort="price" aria-pressed="true">Prix</button>
-          <button class="toggle__opt" data-sort="dist" aria-pressed="false">Distance</button>
+        <div class="toggle toggle--block" role="group" aria-label="Tri" data-i18n-attr="aria-label:sort.group" id="sort">
+          <button class="toggle__opt" data-sort="price" aria-pressed="true" data-i18n="sort.price">Prix</button>
+          <button class="toggle__opt" data-sort="dist" aria-pressed="false" data-i18n="sort.dist">Distance</button>
         </div>
         <button class="fresh fresh-btn" data-refresh type="button"></button>
       </div>
       <div id="list-hint"></div>
       <ul id="list" class="list"></ul>
-      <p class="credit t-caption">Données : Régie de l’énergie du Québec</p>
+      <p class="credit t-caption" data-i18n="credit">Données : Régie de l’énergie du Québec</p>
     </section>
 
-    <section id="view-favs" aria-label="Favoris" hidden>
-      <div class="viewbar"><h1 class="t-h3">Favoris</h1><button class="fresh fresh-btn" data-refresh type="button"></button></div>
+    <section id="view-favs" aria-label="Favoris" data-i18n-attr="aria-label:view.favs" hidden>
+      <div class="viewbar"><h1 class="t-h3" data-i18n="favs.title">Favoris</h1><button class="fresh fresh-btn" data-refresh type="button"></button></div>
       <ul id="favs" class="list"></ul>
-      <p class="credit t-caption">Données : Régie de l’énergie du Québec</p>
+      <p class="credit t-caption" data-i18n="credit">Données : Régie de l’énergie du Québec</p>
     </section>
 
     <div id="loading" role="status">
       <div class="gauge" aria-hidden="true"><svg viewBox="0 0 120 70"><path class="arc" d="M10 60a50 50 0 0 1 100 0"/><path class="ticks" d="M14 44l6 3M60 14v7M106 44l-6 3M28 24l5 5M92 24l-5 5"/><line class="needle" x1="60" y1="60" x2="60" y2="20"/><circle class="hub" cx="60" cy="60" r="6"/><text class="lbl" x="4" y="70">E</text><text class="lbl" x="108" y="70">F</text></svg></div>
-      <span class="t-subtitle2">Le plein de prix en cours…</span>
+      <span class="t-subtitle2" data-i18n="loading">Le plein de prix en cours…</span>
     </div>
   </main>
 
-  <nav class="bottomnav" aria-label="Navigation">
-    <button class="bottomnav__item" data-nav="map" aria-current="page"><span class="pill"><svg class="ico" aria-hidden="true"><use href="#i-map"/></svg></span>Carte</button>
-    <button class="bottomnav__item" data-nav="list"><span class="pill"><svg class="ico" aria-hidden="true"><use href="#i-list"/></svg></span>Liste</button>
-    <button class="bottomnav__item" data-nav="favs"><span class="pill badge-wrap"><svg class="ico" aria-hidden="true"><use href="#i-heart"/></svg><span id="favs-dot" class="badge badge--dot" hidden></span></span>Favoris</button>
+  <nav class="bottomnav" aria-label="Navigation" data-i18n-attr="aria-label:nav.label">
+    <button class="bottomnav__item" data-nav="map" aria-current="page"><span class="pill"><svg class="ico" aria-hidden="true"><use href="#i-map"/></svg></span><span data-i18n="nav.map">Carte</span></button>
+    <button class="bottomnav__item" data-nav="list"><span class="pill"><svg class="ico" aria-hidden="true"><use href="#i-list"/></svg></span><span data-i18n="nav.list">Liste</span></button>
+    <button class="bottomnav__item" data-nav="favs"><span class="pill badge-wrap"><svg class="ico" aria-hidden="true"><use href="#i-heart"/></svg><span id="favs-dot" class="badge badge--dot" hidden></span></span><span data-i18n="nav.favs">Favoris</span></button>
   </nav>
 
   <div id="backdrop" class="backdrop" hidden></div>
   <div id="sheet" class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden></div>
   <div id="toast" class="snackbar" role="status" aria-live="polite" hidden><span class="snackbar__msg"></span></div>
 </div>
-<noscript><p style="padding:24px">Le Plein a besoin de JavaScript pour afficher les prix.</p></noscript>
+<noscript><p style="padding:24px">Le Plein a besoin de JavaScript pour afficher les prix.<br>Le Plein needs JavaScript to show prices.</p></noscript>
 <script type="module" src="js/main.js"></script>
 </body>
 </html>
