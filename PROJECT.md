@@ -120,6 +120,8 @@ The Régie only publishes current prices. A scheduled GitHub Actions job saves a
 - 2026-11-07: Phase 0 done. Repo `ericgarant/gasprices-web` created and pushed. Hourly snapshot job running; first snapshot saved 2026-11-07 09:51 (about 2,460 stations). GitHub Pages: to be turned on by Eric (Settings > Pages > main, root) before phase 2.
 - 2026-11-07: Phase 1 drafted in `design-system/` (branch `design-system-phase1`): "Panneau de prix" tokens (light + dark), 47 components (MUI catalogue + price, price sign, pin, station sheet, freshness, fuel gauge, radar), concept screens for the map and the station sheet. Eric kept the theme on 2026-11-07 (PR #1).
 
+- 2026-11-07: Phase 2 core app built (PR on branch `claude/project-thread-ecgy2n`): map with clustered price pins, nearby list, fuel toggle, filters (region, brand, max price, radius), favourites, station sheet with directions, offline cache + service worker, 5-minute auto-refresh, installable PWA, light/dark. Price levels are terciles per region.
+
 ## Working notes for Claude
 
 - Start each chat by connecting the GitHub repo `ericgarant/gasprices-web` and reading the latest `PROJECT.md` from it; the repo copy is newer than any uploaded copy.
@@ -129,4 +131,4 @@ The Régie only publishes current prices. A scheduled GitHub Actions job saves a
 
 ## Next step
 
-Phase 2: build the core app on top of `design-system/styles.css` (link it, don't copy values). Eric turns on GitHub Pages first (Settings > Pages > main, root). The concept screens in `design-system/concept.html` are the reference for the map view and the station sheet.
+Phase 3: fun features. (Phase 2 core app is built; test it installed on a phone.) Original phase 2 note: build the core app on top of `design-system/styles.css` (link it, don't copy values). Eric turns on GitHub Pages first (Settings > Pages > main, root). The concept screens in `design-system/concept.html` are the reference for the map view and the station sheet.
