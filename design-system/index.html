@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le Plein · Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="theme.js"></script>
+<style>
+/* page chrome (style-guide layout only; components/tokens live in styles.css) */
+body{font-family:var(--font-body);color:var(--on-surface);background:var(--bg);display:flex}
+nav.side{position:sticky;top:0;align-self:flex-start;height:100vh;width:220px;flex:0 0 220px;background:var(--surface);border-right:1px solid var(--border);padding:22px 14px;overflow:auto}
+nav.side .brand{margin:0 0 18px 6px}
+nav.side a{display:block;padding:6px 10px;border-radius:8px;font-size:14px;color:var(--muted);text-decoration:none}
+nav.side a:hover{background:var(--bg);color:var(--on-surface)}
+nav.side a.concept-link{margin:0 0 6px;padding:12px;font-weight:700;color:var(--on-primary);background:var(--primary);border-radius:12px}
+nav.side a.concept-link:hover{background:var(--primary-strong);color:var(--on-primary)}
+nav.side .grp{font:700 11px var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--subtle);margin:18px 0 6px 10px}
+main{flex:1;min-width:0;padding:40px 44px 120px;max-width:1080px;transition:margin var(--dur-base) var(--ease)}
+section{margin-bottom:56px;scroll-margin-top:20px}
+h2.sec{font:800 30px/1.1 var(--font-display);text-transform:uppercase;letter-spacing:.01em;color:var(--on-surface);margin-bottom:6px}
+h2.sec .tag{font:600 11px var(--font-body);letter-spacing:.04em;text-transform:none;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:2px 8px;margin-left:8px;vertical-align:middle}
+.sec-desc{color:var(--muted);font-size:15px;margin-bottom:18px;max-width:700px;line-height:1.55}
+.stage{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:26px;display:flex;flex-wrap:wrap;gap:28px;align-items:center}
+.stage--bg{background:var(--bg)}
+.stage--col{flex-direction:column;align-items:flex-start}
+.cell{display:flex;flex-direction:column;align-items:center;gap:10px}
+.cell--l{align-items:flex-start}
+.spec{font:11px var(--font-mono);color:var(--subtle)}
+.colors{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.cgrp{font:700 12px var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:22px 0 10px}
+.sw{border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;background:var(--surface)}
+.sw .c{height:58px;display:flex;align-items:flex-end;padding:6px 8px;font:700 13px var(--font-body)}.sw .m{padding:8px 10px}.sw .n{font-size:12px;font-weight:600}.sw .v{font:11px var(--font-mono);color:var(--subtle)}
+.typerow{display:flex;align-items:baseline;gap:18px;padding:12px 0;border-bottom:1px solid var(--border)}
+.typerow .tk{width:150px;flex:0 0 150px;font:11px var(--font-mono);color:var(--subtle)}
+.sprow{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.sprow .bar{background:var(--primary);height:12px;border-radius:3px}.sprow .lbl{width:170px;font:12px var(--font-mono);color:var(--muted)}
+.rad{width:84px;height:84px;background:var(--muted-surface);border:2px solid var(--outline)}
+.elev{width:140px;height:90px;background:var(--surface);border-radius:var(--r-md);display:grid;place-items:center;font:12px var(--font-mono);color:var(--muted)}
+.iconGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+.iconGrid .it{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:7px;color:var(--on-surface)}
+.iconGrid .it .nm{font:11px var(--font-mono);color:var(--subtle)}
+.mapbg{position:relative;width:100%;height:190px;border-radius:var(--r-lg);background:var(--map-land);overflow:hidden}
+.demo-phone{width:340px;border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;background:var(--bg)}
+.lay-demo{outline:1px dashed var(--outline);padding:8px;font:12px var(--font-mono);color:var(--muted)}
+.lay-demo>*{background:var(--muted-surface);border-radius:6px;padding:8px}
+code{font:13px var(--font-mono);background:var(--muted-surface);color:var(--on-muted-surface);padding:1px 5px;border-radius:5px}
+
+#topctl{position:fixed;top:14px;right:18px;z-index:50;display:flex;gap:8px;align-items:center}
+#themeSel,#langSel{font:600 13px var(--font-body);border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:var(--surface);color:var(--on-surface)}
+.ds-btn{font:600 13px var(--font-body);background:var(--surface);border:2px solid var(--primary);color:var(--primary-ink);border-radius:10px;padding:7px 12px;cursor:pointer}
+#devToggle{font:600 13px var(--font-body);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 14px;cursor:pointer;color:var(--on-surface)}
+#devToggle.on{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.sec-prompt{font:600 12px var(--font-body);text-transform:none;letter-spacing:0;border:2px solid var(--primary);background:var(--surface);color:var(--primary-ink);border-radius:8px;padding:3px 9px;margin-left:12px;cursor:pointer;vertical-align:middle}
+body.dev [data-insp]:hover{outline:2px dashed var(--secondary);outline-offset:3px;cursor:pointer}
+.insp-sel{outline:2px solid var(--secondary)!important;outline-offset:3px}
+#inspector{position:fixed;top:0;right:0;width:350px;height:100vh;background:var(--surface);border-left:1px solid var(--border);box-shadow:var(--elev-3);transform:translateX(100%);transition:transform .28s var(--ease);z-index:49;overflow:auto;padding:62px 20px 40px}
+body.inspecting #inspector{transform:translateX(0)}
+body.inspecting main{margin-right:350px}
+#inspector .iclose{position:absolute;top:14px;right:14px}
+#inspector .nm{font:800 26px var(--font-display);text-transform:uppercase}
+#inspector .file{font:12px var(--font-mono);color:var(--subtle);margin-top:2px}
+#inspector .desc{font-size:14px;color:var(--muted);line-height:1.55;margin-top:10px}
+#inspector h4{font:700 12px var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--subtle);margin:20px 0 8px}
+.prop{padding:8px 0;border-bottom:1px solid var(--border-faint)}.prop .pn{font:600 13px var(--font-mono)}.prop .pt{font:11px var(--font-mono);color:var(--secondary-ink)}.prop .pdef{font:11px var(--font-mono);color:var(--subtle)}.prop .pd{font-size:12px;color:var(--muted);margin-top:3px}
+.tok{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:8px;cursor:pointer}.tok:hover{background:var(--bg)}
+.tok .tsw{width:22px;height:22px;border-radius:6px;border:1px solid var(--border);flex:0 0 22px}.tok .tn{font:600 12px var(--font-mono)}.tok .tr{font-size:11px;color:var(--muted)}.tok .tv{margin-left:auto;font:11px var(--font-mono);color:var(--subtle);text-align:right;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.metric{display:flex;justify-content:space-between;gap:12px;font:12px var(--font-mono);padding:5px 0;border-bottom:1px dashed var(--border-faint)}.metric .mk{color:var(--muted)}
+.copied{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--inverse-surface);color:var(--on-inverse-surface);font-size:13px;padding:9px 16px;border-radius:10px;opacity:0;transition:.2s;z-index:60;pointer-events:none}.copied.show{opacity:1}
+@media (max-width:760px){body{display:block}nav.side{position:static;width:auto;height:auto;border-right:0;border-bottom:1px solid var(--border)}main{padding:24px 16px 100px}#topctl{position:static;flex-wrap:wrap;padding:12px 16px}body.inspecting main{margin-right:0}#inspector{width:100%}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-fuel" viewBox="0 0 24 24"><path d="M3 22h12M4 9h10"/><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"/><path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0V9.8a2 2 0 0 0-.6-1.4L18 5"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M14.1 5.6a2 2 0 0 0 1.8 0l3.7-1.9a1 1 0 0 1 1.4.9v12.8a1 1 0 0 1-.6.9l-4.5 2.3a2 2 0 0 1-1.8 0l-4.2-2.1a2 2 0 0 0-1.8 0l-3.7 1.8a1 1 0 0 1-1.4-.9V6.6a1 1 0 0 1 .6-.9l4.5-2.3a2 2 0 0 1 1.8 0z"/><path d="M15 5.8v15M9 3.2v15"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21.2l8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-directions" viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8z"/></symbol>
+  <symbol id="i-locate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+  <symbol id="i-sort" viewBox="0 0 24 24"><path d="M21 16l-4 4-4-4M17 20V4M3 8l4-4 4 4M7 4v16"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 2l10 5-10 5L2 7z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></symbol>
+  <symbol id="i-radar" viewBox="0 0 24 24"><path d="M19.07 4.93A10 10 0 1 0 22 12"/><path d="M16.24 7.76A6 6 0 1 0 18 12"/><circle cx="12" cy="12" r="2"/><path d="M13.4 10.6l5.7-5.7"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-offline" viewBox="0 0 24 24"><path d="M12 20h.01M8.5 16.4a5 5 0 0 1 7 0M2 8.8a15 15 0 0 1 4.2-2.6M10.7 5c4-.4 8.1.9 11.3 3.8M16.9 11.3a10 10 0 0 1 2.2 1.7M5 13a10 10 0 0 1 5.2-2.8M2 2l20 20"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M21.7 18l-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></symbol>
+  <symbol id="i-trend-down" viewBox="0 0 24 24"><path d="M22 17l-8.5-8.5-5 5L2 7"/><path d="M16 17h6v-6"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M16 6l-4-4-4 4M12 2v13"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="14" height="14" rx="2"/><path d="M4 16a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6M10 14L21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></symbol>
+  <symbol id="i-more-v" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.8 21l1.2-6.9-5-4.9 6.9-1z"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
+  <symbol id="i-store" viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/><path d="M5 12v9h14v-9M10 21v-5h4v5"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+</svg>
+
+<div id="topctl">
+  <button class="ds-btn" onclick="copyFullSystem()" title="Copy a prompt to install or update the whole design system">⤓ Install design system</button>
+  <select id="themeSel" title="Preview theme" aria-label="Theme"><option value="">Jour (light)</option><option value="dark">Nuit (dark)</option></select>
+  <select id="langSel" title="Copy-as-prompt target" aria-label="Prompt target"></select>
+  <button id="devToggle" onclick="toggleDev()">◧ Dev Mode</button>
+</div>
+<aside id="inspector"><button class="iconbtn iclose" onclick="closeInspector()" aria-label="Fermer"><svg class="ico"><use href="#i-close"/></svg></button><div id="inspectorBody"></div></aside>
+<div class="copied" id="copied">Copied</div>
+
+<nav class="side">
+  <div class="brand wordmark"><span class="wordmark__plate">171<small style="font-size:.6em">9</small></span>Le Plein</div>
+  <a class="concept-link" href="concept.html">◳ &nbsp;Concept preview &nbsp;→</a>
+  <div class="grp">Foundations</div>
+  <a href="#colors">Palette</a><a href="#type">Typography</a><a href="#spacing">Spacing</a><a href="#radius">Shape</a><a href="#elevation">Shadows</a><a href="#motion">Motion &amp; z-index</a><a href="#icons">Icons</a>
+  <div class="grp">Signature (extensions)</div>
+  <a href="#price">Price</a><a href="#level">Price level</a><a href="#pricesign">Price sign</a><a href="#pin">Price pin + cluster</a><a href="#stationsheet">Station sheet</a><a href="#freshness">Freshness</a><a href="#gauge">Fuel gauge</a><a href="#radar">Deal radar</a>
+  <div class="grp">Inputs</div>
+  <a href="#button">Button</a><a href="#buttongroup">Button group</a><a href="#iconbutton">Icon button</a><a href="#fab">FAB</a><a href="#checkbox">Checkbox</a><a href="#radiogroup">Radio group</a><a href="#switch">Switch</a><a href="#select">Select</a><a href="#autocomplete">Autocomplete</a><a href="#slider">Slider</a><a href="#textfield">Text field</a><a href="#togglebutton">Toggle button</a><a href="#rating">Rating</a>
+  <div class="grp">Data display</div>
+  <a href="#avatar">Avatar</a><a href="#badge">Badge</a><a href="#chip">Chip</a><a href="#divider">Divider</a><a href="#list">List</a><a href="#table">Table</a><a href="#tooltip">Tooltip</a><a href="#typography">Typography</a><a href="#icon">Icon</a>
+  <div class="grp">Feedback</div>
+  <a href="#alert">Alert</a><a href="#dialog">Dialog</a><a href="#snackbar">Snackbar</a><a href="#progress">Progress</a><a href="#skeleton">Skeleton</a><a href="#backdrop">Backdrop</a>
+  <div class="grp">Surfaces</div>
+  <a href="#appbar">App bar</a><a href="#card">Card</a><a href="#paper">Paper</a><a href="#accordion">Accordion</a>
+  <div class="grp">Navigation</div>
+  <a href="#bottomnav">Bottom navigation</a><a href="#drawer">Drawer</a><a href="#tabs">Tabs</a><a href="#menu">Menu</a><a href="#link">Link</a><a href="#stepper">Stepper</a><a href="#speeddial">Speed dial</a>
+  <div class="grp">Layout</div>
+  <a href="#layout">Box · Container · Grid · Stack</a>
+</nav>
+
+<main>
+  <header style="margin-bottom:44px;max-width:760px">
+    <div class="t-overline">Le Plein · Design system v0.1</div>
+    <h1 class="t-h1" style="margin-top:6px">Panneau de prix</h1>
+    <p class="t-body1" style="margin-top:12px;color:var(--muted)">For drivers comparing gas prices one-handed, a roadside price sign treatment (huge condensed numerals, ink-on-enamel chrome, three price colours) makes <b style="color:var(--on-surface)">the cheapest litre the first thing you see</b>. Everything else stays quiet.</p>
+    <p class="sec-desc" style="margin-top:12px">Structure: Material token model + MUI component catalogue. Source of truth: <code>styles.css</code>. Toggle <b>Dev Mode</b> to inspect a component; <b>Copy as prompt</b> gives an implementation brief. Switch <b>Jour / Nuit</b> at top right.</p>
+  </header>
+
+  <!-- ================= FOUNDATIONS ================= -->
+  <section id="colors"><h2 class="sec">Palette</h2>
+    <p class="sec-desc">Chrome is ink on warm enamel; the three price colours are the only saturated hues. Every fill has a paired <code>--on-*</code>; colours used as text use their <code>*-ink</code>. All pairs pass WCAG AA (checked by formula, both themes). Values below are read live from the current theme.</p>
+    <div id="colorGrid"></div></section>
+
+  <section id="type"><h2 class="sec">Typography</h2>
+    <p class="sec-desc"><b>Barlow</b>, a grotesk drawn after North-American highway signs, in two widths: <b>Barlow Condensed</b> for prices and headlines (the sign), <b>Barlow</b> for reading. Prices always use tabular numerals so columns line up.</p>
+    <div id="typeList"></div></section>
+
+  <section id="spacing"><h2 class="sec">Spacing</h2>
+    <p class="sec-desc">8px <code>spacing()</code> scale with 4px half-steps, plus semantic roles: related &lt; section &lt; major. Every tap target is at least 48px.</p>
+    <div id="spacingList"></div></section>
+
+  <section id="radius"><h2 class="sec">Shape</h2><p class="sec-desc">Chunky and rounded, like enamel sign plates. Cards use <code>r-lg</code>, sheets and dialogs <code>r-xl</code>.</p>
+    <div class="stage" id="radiusList"></div></section>
+
+  <section id="elevation"><h2 class="sec">Shadows</h2><p class="sec-desc">Small documented subset of MUI's 0–24: four levels plus a pin shadow. By day a soft plate shadow; by night surfaces separate by tone and a hairline.</p>
+    <div class="stage stage--bg" id="elevList"></div></section>
+
+  <section id="motion"><h2 class="sec">Motion &amp; z-index</h2><p class="sec-desc">All motion is under 400ms, never blocks input, and collapses to ~0 when the phone's "reduce motion" setting is on. Breakpoints: 600 / 900 / 1200. Layers: app bar 1100 · drawer 1200 · sheet 1250 · dialog 1300 · snackbar 1400 · tooltip 1500.</p>
+    <div class="stage" id="motionList"></div></section>
+
+  <section id="icons"><h2 class="sec">Icons</h2>
+    <p class="sec-desc">Inline SVG sprite, Material-outlined weight (2px, round joins), drawn in the style of Lucide / Material Symbols. Token-driven: <code>stroke:currentColor</code>. Never emoji.</p>
+    <div class="iconGrid" id="iconGrid"></div></section>
+
+  <!-- ================= SIGNATURE ================= -->
+  <section id="price"><h2 class="sec">Price <span class="tag">extension</span></h2>
+    <p class="sec-desc">The hero. Condensed, tabular, the tenth of a cent raised and small like on a Québec pump sign. Colour follows the level vs. stations around you, but a price is never colour alone. Digits roll into place on change (360ms).</p>
+    <div class="stage">
+      <div class="cell"><span class="price price--xl price--cheap" data-insp="price" aria-label="171,9 cents le litre">171<span class="price__tenth">9</span><span class="price__unit">¢/L</span></span><div class="spec">xl · cheap</div></div>
+      <div class="cell"><span class="price price--lg price--avg" data-insp="price" aria-label="181,9 cents le litre">181<span class="price__tenth">9</span><span class="price__unit">¢/L</span></span><div class="spec">lg · avg</div></div>
+      <div class="cell"><span class="price price--md price--pricey" data-insp="price" aria-label="199,9 cents le litre">199<span class="price__tenth">9</span><span class="price__unit">¢/L</span></span><div class="spec">md · pricey</div></div>
+      <div class="cell"><span class="price price--sm" data-insp="price" aria-label="279,9 cents le litre">279<span class="price__tenth">9</span><span class="price__unit">¢/L</span></span><div class="spec">sm · neutral</div></div>
+      <div class="cell"><span class="price price--md price--na" data-insp="price">—</span><div class="spec">unavailable</div></div>
+      <div class="cell"><span class="price price--lg price--cheap rolling" id="rollDemo" data-insp="price"><span class="price__digits">171</span><span class="price__tenth">9</span><span class="price__unit">¢/L</span></span><button class="btn btn--text btn--sm" onclick="const d=document.querySelector('#rollDemo .price__digits');d.style.animation='none';d.offsetWidth;d.style.animation=''">Rejouer</button></div>
+    </div></section>
+
+  <section id="level"><h2 class="sec">Price level <span class="tag">extension</span></h2>
+    <p class="sec-desc">Text + dot + colour. Thresholds are relative to stations in view (e.g. lowest third = Bas prix).</p>
+    <div class="stage">
+      <span class="level level--cheap" data-insp="level">Bas prix</span>
+      <span class="level level--avg" data-insp="level">Moyen</span>
+      <span class="level level--pricey" data-insp="level">Élevé</span>
+    </div></section>
+
+  <section id="pricesign"><h2 class="sec">Price sign <span class="tag">extension</span></h2>
+    <p class="sec-desc">The black board from the roadside, used once per screen (station sheet). LED-bright digits; at night they glow.</p>
+    <div class="stage stage--bg">
+      <div class="sign" data-insp="pricesign" style="width:320px">
+        <div class="sign__head"><span>Prix affichés</span><span>¢ / litre</span></div>
+        <div class="sign__row is-current"><div class="sign__fuel">Régulier<small>10,1¢ sous la moyenne du secteur</small></div><span class="price price--lg price--cheap">171<span class="price__tenth">9</span></span></div>
+        <div class="sign__row"><div class="sign__fuel">Super</div><span class="price price--md">191<span class="price__tenth">9</span></span></div>
+        <div class="sign__row"><div class="sign__fuel">Diesel</div><span class="price price--na">NON DISPONIBLE</span></div>
+      </div>
+    </div></section>
+
+  <section id="pin"><h2 class="sec">Price pin + cluster <span class="tag">extension</span></h2>
+    <p class="sec-desc">A tiny price sign on a stalk. Variants: cheap / avg / pricey, selected (larger, ink outline), best (ring), favourite (dot). Cluster shows the count and the lowest price inside it.</p>
+    <div class="mapbg" style="max-width:720px">
+      <div class="pin pin--cheap pin--best" data-insp="pin" style="left:12%;top:58%"><span class="pin__plate">171<small>9</small></span><span class="pin__stalk"></span></div>
+      <div class="pin pin--avg" data-insp="pin" style="left:30%;top:42%"><span class="pin__plate">181<small>9</small></span><span class="pin__stalk"></span></div>
+      <div class="pin pin--pricey" data-insp="pin" style="left:46%;top:66%"><span class="pin__plate">199<small>9</small></span><span class="pin__stalk"></span></div>
+      <div class="pin pin--cheap pin--selected" data-insp="pin" style="left:63%;top:52%"><span class="pin__plate">179<small>9</small></span><span class="pin__stalk"></span></div>
+      <div class="pin pin--avg pin--fav" data-insp="pin" style="left:78%;top:38%"><span class="pin__plate">184<small>9</small></span><span class="pin__stalk"></span></div>
+      <div class="cluster" data-insp="pin" style="left:90%;top:70%"><div><b>179⁹</b><span>12 stations</span></div></div>
+      <div class="me" style="left:52%;top:30%"></div>
+    </div></section>
+
+  <section id="stationsheet"><h2 class="sec">Station sheet <span class="tag">extension · Drawer anchor=bottom</span></h2>
+    <p class="sec-desc">Raised over the map. Peek state shows name + price; expanded shows the price sign, actions and details. See the concept for the full layout.</p>
+    <div class="stage stage--bg">
+      <div class="sheet" data-insp="stationsheet" style="width:340px">
+        <span class="sheet__grab"></span>
+        <div class="sheet__body">
+          <div class="card__row"><span class="avatar">Pc</span><div style="flex:1;min-width:0"><div class="card__title">Dépanneur Brompton</div><div class="card__meta">245 rue Laval · 1,2 km</div></div><span class="price price--md price--avg">179<span class="price__tenth">9</span></span></div>
+        </div>
+      </div>
+    </div></section>
+
+  <section id="freshness"><h2 class="sec">Freshness <span class="tag">extension</span></h2>
+    <p class="sec-desc">Always say how old the prices are. Offline shows the last loaded prices with their age.</p>
+    <div class="stage">
+      <span class="fresh" data-insp="freshness"><svg class="ico"><use href="#i-clock"/></svg>Mis à jour il y a 3 min</span>
+      <span class="fresh fresh--stale" data-insp="freshness"><svg class="ico"><use href="#i-alert"/></svg>Prix d’il y a 2 h</span>
+      <span class="fresh fresh--offline" data-insp="freshness"><svg class="ico"><use href="#i-offline"/></svg>Hors ligne · prix de 9 h 50</span>
+    </div></section>
+
+  <section id="gauge"><h2 class="sec">Fuel gauge loader <span class="tag">extension · Progress</span></h2>
+    <p class="sec-desc">Shown while prices load. The needle sweeps E → F; static under reduce-motion.</p>
+    <div class="stage">
+      <div class="cell"><div class="gauge" data-insp="gauge" role="progressbar" aria-label="Chargement des prix"><svg viewBox="0 0 120 70"><path class="arc" d="M10 60a50 50 0 0 1 100 0"/><path class="ticks" d="M14 44l6 3M60 14v7M106 44l-6 3M28 24l5 5M92 24l-5 5"/><line class="needle" x1="60" y1="60" x2="60" y2="20"/><circle class="hub" cx="60" cy="60" r="6"/><text class="lbl" x="4" y="70">E</text><text class="lbl" x="108" y="70">F</text></svg></div><div class="t-body2">Chargement des prix…</div></div>
+    </div></section>
+
+  <section id="radar"><h2 class="sec">Deal radar <span class="tag">extension · phase 3</span></h2>
+    <p class="sec-desc">Preview of the "deals near me" sweep: highlights the cheapest stations around you.</p>
+    <div class="stage"><div class="radar" data-insp="radar"><i style="left:30%;top:40%"></i><i style="left:64%;top:62%"></i><i style="left:58%;top:22%"></i></div></div></section>
+
+  <!-- ================= INPUTS ================= -->
+  <section id="button"><h2 class="sec">Button</h2><p class="sec-desc">variant: contained / outlined / text · size: sm / md / lg · color: primary / secondary / error. Press scales to 97%.</p>
+    <div class="stage stage--col">
+      <div class="stack stack--row" style="--gap:16px;flex-wrap:wrap">
+        <button class="btn btn--contained btn--lg" data-insp="button"><svg class="ico"><use href="#i-directions"/></svg>Itinéraire</button>
+        <button class="btn btn--contained" data-insp="button">Contained</button>
+        <button class="btn btn--outlined" data-insp="button">Outlined</button>
+        <button class="btn btn--text" data-insp="button">Text</button>
+        <button class="btn btn--contained btn--sm" data-insp="button">Small</button>
+      </div>
+      <div class="stack stack--row" style="--gap:16px;flex-wrap:wrap">
+        <button class="btn btn--contained btn--secondary" data-insp="button">Secondary</button>
+        <button class="btn btn--outlined btn--error" data-insp="button">Retirer des favoris</button>
+        <button class="btn btn--contained is-focus" data-insp="button">Focus</button>
+        <button class="btn btn--contained is-pressed" data-insp="button">Pressed</button>
+        <button class="btn btn--contained" disabled data-insp="button">Disabled</button>
+      </div>
+    </div></section>
+
+  <section id="buttongroup"><h2 class="sec">Button group</h2><p class="sec-desc">Map zoom controls; related actions sharing one outline.</p>
+    <div class="stage"><div class="btngroup" data-insp="buttongroup"><button class="btn" aria-label="Zoom avant"><svg class="ico"><use href="#i-plus"/></svg></button><button class="btn" aria-label="Zoom arrière"><svg class="ico"><use href="#i-minus"/></svg></button></div>
+      <div class="btngroup" data-insp="buttongroup"><button class="btn">Apple Plans</button><button class="btn">Google Maps</button></div></div></section>
+
+  <section id="iconbutton"><h2 class="sec">Icon button</h2><p class="sec-desc">standard / filled / tonal (floats over the map) / outlined · toggle (favourite) · disabled. 48px target.</p>
+    <div class="stage">
+      <div class="cell"><button class="iconbtn" data-insp="iconbutton" aria-label="Partager"><svg class="ico"><use href="#i-share"/></svg></button><div class="spec">standard</div></div>
+      <div class="cell"><button class="iconbtn iconbtn--filled" data-insp="iconbutton" aria-label="Itinéraire"><svg class="ico"><use href="#i-directions"/></svg></button><div class="spec">filled</div></div>
+      <div class="cell"><button class="iconbtn iconbtn--tonal" data-insp="iconbutton" aria-label="Ma position"><svg class="ico"><use href="#i-locate"/></svg></button><div class="spec">tonal</div></div>
+      <div class="cell"><button class="iconbtn iconbtn--outlined" data-insp="iconbutton" aria-label="Filtres"><svg class="ico"><use href="#i-filter"/></svg></button><div class="spec">outlined</div></div>
+      <div class="cell"><button class="iconbtn" aria-pressed="false" data-insp="iconbutton" aria-label="Ajouter aux favoris" onclick="this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')!=='true')"><svg class="ico"><use href="#i-heart"/></svg></button><div class="spec">toggle off</div></div>
+      <div class="cell"><button class="iconbtn" aria-pressed="true" data-insp="iconbutton" aria-label="Retirer des favoris" onclick="this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')!=='true')"><svg class="ico"><use href="#i-heart"/></svg></button><div class="spec">toggle on</div></div>
+      <div class="cell"><button class="iconbtn" disabled data-insp="iconbutton" aria-label="Actualiser"><svg class="ico"><use href="#i-refresh"/></svg></button><div class="spec">disabled</div></div>
+    </div></section>
+
+  <section id="fab"><h2 class="sec">Floating action button</h2><p class="sec-desc">regular / small / extended / surface. One per screen at most.</p>
+    <div class="stage stage--bg">
+      <button class="fab" data-insp="fab" aria-label="Radar des aubaines"><svg class="ico"><use href="#i-radar"/></svg></button>
+      <button class="fab fab--sm" data-insp="fab" aria-label="Ma position"><svg class="ico"><use href="#i-locate"/></svg></button>
+      <button class="fab fab--extended" data-insp="fab"><svg class="ico"><use href="#i-list"/></svg>Liste</button>
+      <button class="fab fab--extended fab--surface" data-insp="fab"><svg class="ico"><use href="#i-map"/></svg>Carte</button>
+    </div></section>
+
+  <section id="checkbox"><h2 class="sec">Checkbox</h2><p class="sec-desc">unchecked / checked / indeterminate / disabled. Brand filter.</p>
+    <div class="stage">
+      <label class="check" data-insp="checkbox"><input type="checkbox"><span class="box"><svg class="ico"><use href="#i-check"/></svg></span><span>Shell</span></label>
+      <label class="check" data-insp="checkbox"><input type="checkbox" checked><span class="box"><svg class="ico"><use href="#i-check"/></svg></span><span>Petro-Canada</span></label>
+      <label class="check" data-insp="checkbox"><input type="checkbox" id="indet"><span class="box"><svg class="ico"><use href="#i-check"/></svg></span><span>Toutes les bannières</span></label>
+      <label class="check" data-insp="checkbox"><input type="checkbox" disabled><span class="box"><svg class="ico"><use href="#i-check"/></svg></span><span>Indépendant</span></label>
+    </div></section>
+
+  <section id="radiogroup"><h2 class="sec">Radio group</h2><p class="sec-desc">Sort order of the nearby list.</p>
+    <div class="stage"><div class="radiogroup" role="radiogroup" data-insp="radiogroup" aria-label="Trier par">
+      <label class="radio"><input type="radio" name="sort" checked><span class="dot"></span><span>Prix le plus bas</span></label>
+      <label class="radio"><input type="radio" name="sort"><span class="dot"></span><span>Distance</span></label>
+      <label class="radio"><input type="radio" name="sort" disabled><span class="dot"></span><span>Économies (bientôt)</span></label>
+    </div></div></section>
+
+  <section id="switch"><h2 class="sec">Switch</h2><p class="sec-desc">on / off / disabled.</p>
+    <div class="stage">
+      <label class="switch" data-insp="switch"><input type="checkbox" checked><span class="track"></span><span>Actualiser toutes les 5 min</span></label>
+      <label class="switch" data-insp="switch"><input type="checkbox"><span class="track"></span><span>Carte de chaleur</span></label>
+      <label class="switch" data-insp="switch"><input type="checkbox" disabled><span class="track"></span><span>Vibration</span></label>
+    </div></section>
+
+  <section id="select"><h2 class="sec">Select</h2><p class="sec-desc">Native select styled as an outlined field (best on phones).</p>
+    <div class="stage"><div class="field field--outlined select" data-insp="select"><label class="field__label" for="reg">Région</label><div class="field__box"><select id="reg"><option>Estrie</option><option>Montréal</option><option>Capitale-Nationale</option><option>Abitibi-Témiscamingue</option></select></div></div></div></section>
+
+  <section id="autocomplete"><h2 class="sec">Autocomplete</h2><p class="sec-desc">Search a city, address or brand. Matching part in bold.</p>
+    <div class="stage"><div class="autocomplete" data-insp="autocomplete">
+      <div class="field field--search is-focus"><div class="field__box"><svg class="ico"><use href="#i-search"/></svg><input value="Sher" aria-label="Rechercher"><button class="iconbtn" aria-label="Effacer"><svg class="ico ico--sm"><use href="#i-close"/></svg></button></div></div>
+      <ul class="listbox" role="listbox">
+        <li class="is-active"><svg class="ico ico--sm"><use href="#i-pin"/></svg><span><mark>Sher</mark>brooke</span><span class="hint">40 stations</span></li>
+        <li><svg class="ico ico--sm"><use href="#i-pin"/></svg><span>Rue <mark>Sher</mark>brooke, Magog</span><span class="hint">5</span></li>
+        <li><svg class="ico ico--sm"><use href="#i-pin"/></svg><span>Rue <mark>Sher</mark>brooke, Montréal</span><span class="hint">31</span></li>
+      </ul></div></div></section>
+
+  <section id="slider"><h2 class="sec">Slider</h2><p class="sec-desc">continuous (max price) / discrete with marks (radius) / range.</p>
+    <div class="stage" style="gap:40px;padding-top:48px">
+      <div class="cell cell--l"><div class="slider" data-insp="slider"><div class="slider__track"><div class="slider__fill" style="width:55%"></div></div><div class="slider__thumb is-focus" style="left:55%"></div><div class="slider__value" style="left:55%">≤ 184,9¢</div></div><div class="spec">continuous · focus</div></div>
+      <div class="cell cell--l"><div class="slider" data-insp="slider"><div class="slider__track"><div class="slider__fill" style="width:50%"></div></div><span class="slider__mark" style="left:0"></span><span class="slider__mark" style="left:25%"></span><span class="slider__mark" style="left:75%"></span><span class="slider__mark" style="left:100%"></span><div class="slider__thumb" style="left:50%"></div><div class="slider__value" style="left:50%">10 km</div></div><div class="spec">discrete · 2/5/10/25/50 km</div></div>
+      <div class="cell cell--l"><div class="slider" data-insp="slider"><div class="slider__track"><div class="slider__fill" style="left:20%;width:50%"></div></div><div class="slider__thumb" style="left:20%"></div><div class="slider__thumb" style="left:70%"></div></div><div class="spec">range</div></div>
+    </div></section>
+
+  <section id="textfield"><h2 class="sec">Text field</h2><p class="sec-desc">filled / outlined / standard · empty / focused / filled / error / disabled · label, helper, leading, trailing.</p>
+    <div class="stage" style="align-items:flex-start">
+      <div class="field field--filled" data-insp="textfield"><label class="field__label">Litres à faire</label><div class="field__box"><input inputmode="decimal" placeholder="50"><span class="t-body2">L</span></div><span class="field__helper">Pour calculer vos économies</span></div>
+      <div class="field field--outlined is-focus" data-insp="textfield"><label class="field__label">Prix cible (¢/L)</label><div class="field__box"><svg class="ico"><use href="#i-bell"/></svg><input value="169,9"></div><span class="field__helper">Alerte à l’ouverture de l’app</span></div>
+      <div class="field field--outlined is-error" data-insp="textfield"><label class="field__label">Prix cible (¢/L)</label><div class="field__box"><input value="12"></div><span class="field__helper">Entrez un prix entre 100 et 300¢</span></div>
+      <div class="field field--standard" data-insp="textfield"><label class="field__label">Ville</label><div class="field__box"><input value="Sherbrooke"></div></div>
+      <div class="field field--outlined is-disabled" data-insp="textfield"><label class="field__label">Code postal</label><div class="field__box"><input placeholder="J1H 1A1"></div></div>
+    </div></section>
+
+  <section id="togglebutton"><h2 class="sec">Toggle button</h2><p class="sec-desc">Exclusive segmented selector: the fuel type. Selected = ink plate.</p>
+    <div class="stage stage--col">
+      <div class="toggle" role="group" aria-label="Carburant" data-insp="togglebutton"><button class="toggle__opt" aria-pressed="true">Régulier</button><button class="toggle__opt" aria-pressed="false">Super</button><button class="toggle__opt" aria-pressed="false">Diesel</button></div>
+      <div class="toggle toggle--float" role="group" aria-label="Carburant" data-insp="togglebutton"><button class="toggle__opt" aria-pressed="false">Régulier</button><button class="toggle__opt" aria-pressed="true">Super</button><button class="toggle__opt" disabled aria-pressed="false">Diesel</button></div>
+    </div></section>
+
+  <section id="rating"><h2 class="sec">Rating <span class="tag">not yet used</span></h2><p class="sec-desc">Kept for catalogue completeness. The Régie data has no ratings and we don't invent any.</p>
+    <div class="stage"><div class="rating" data-insp="rating" aria-label="4 sur 5"><svg class="ico on"><use href="#i-star"/></svg><svg class="ico on"><use href="#i-star"/></svg><svg class="ico on"><use href="#i-star"/></svg><svg class="ico on"><use href="#i-star"/></svg><svg class="ico off"><use href="#i-star"/></svg></div></div></section>
+
+  <!-- ================= DATA DISPLAY ================= -->
+  <section id="avatar"><h2 class="sec">Avatar</h2><p class="sec-desc">Brand monogram on a mini signboard (no brand logos). sm / md / lg, plate / circle / muted (Indépendant).</p>
+    <div class="stage"><span class="avatar avatar--sm" data-insp="avatar">Sh</span><span class="avatar" data-insp="avatar">Es</span><span class="avatar avatar--lg" data-insp="avatar">Pc</span><span class="avatar avatar--circle" data-insp="avatar">Ir</span><span class="avatar avatar--muted" data-insp="avatar">In</span></div></section>
+
+  <section id="badge"><h2 class="sec">Badge</h2><p class="sec-desc">dot / number, on an icon.</p>
+    <div class="stage"><span class="badge-wrap" data-insp="badge"><button class="iconbtn" aria-label="Alertes de prix"><svg class="ico"><use href="#i-bell"/></svg></button><span class="badge">2</span></span>
+      <span class="badge-wrap" data-insp="badge"><button class="iconbtn" aria-label="Filtres actifs"><svg class="ico"><use href="#i-filter"/></svg></button><span class="badge badge--dot"></span></span></div></section>
+
+  <section id="chip"><h2 class="sec">Chip</h2><p class="sec-desc">filter (toggle) / input (removable) / float (over the map) · disabled.</p>
+    <div class="stage">
+      <button class="chip" aria-pressed="true" data-insp="chip"><svg class="ico"><use href="#i-check"/></svg>Ouvert</button>
+      <button class="chip" aria-pressed="false" data-insp="chip">Favoris</button>
+      <span class="chip chip--input" data-insp="chip">Estrie<button class="x" aria-label="Retirer Estrie" style="border:0;color:inherit"><svg class="ico"><use href="#i-close"/></svg></button></span>
+      <span class="chip chip--input is-selected" data-insp="chip">≤ 184,9¢<button class="x" aria-label="Retirer" style="border:0;color:inherit"><svg class="ico"><use href="#i-close"/></svg></button></span>
+      <button class="chip chip--float" data-insp="chip"><svg class="ico"><use href="#i-filter"/></svg>Filtres</button>
+      <button class="chip" disabled data-insp="chip">Lave-auto</button>
+    </div></section>
+
+  <section id="divider"><h2 class="sec">Divider</h2><p class="sec-desc">full / inset / vertical / road (dashed centre line, decorative only).</p>
+    <div class="stage stage--col" style="align-items:stretch">
+      <hr class="divider" data-insp="divider"><hr class="divider divider--inset" data-insp="divider"><hr class="divider divider--road" data-insp="divider" style="width:240px">
+    </div></section>
+
+  <section id="list"><h2 class="sec">List</h2><p class="sec-desc">One / two / three-line items with leading avatar and trailing price. The nearby list.</p>
+    <div class="stage" style="padding:0;overflow:hidden;max-width:420px"><ul class="list" data-insp="list" style="width:100%">
+      <li class="list-subheader">À proximité · Régulier</li>
+      <li class="li li--button"><span class="avatar">Co</span><div class="li__text"><div class="li__primary">Costco Sherbrooke</div><div class="li__secondary">3800 boul. Monseigneur-Fortier · 3,4 km</div></div><div class="li__trail"><span class="price price--md price--cheap">171<span class="price__tenth">9</span></span></div></li>
+      <hr class="divider divider--inset">
+      <li class="li li--button"><span class="avatar">Pc</span><div class="li__text"><div class="li__primary">Dépanneur Brompton</div><div class="li__secondary">245 rue Laval · 1,2 km</div></div><div class="li__trail"><span class="price price--md price--avg">179<span class="price__tenth">9</span></span></div></li>
+      <hr class="divider divider--inset">
+      <li class="li li--button li--three"><span class="avatar">Sh</span><div class="li__text"><div class="li__primary">Dépanneur Carrefour Portland inc.</div><div class="li__secondary clamp">2880 boul. de Portland, Sherbrooke · 2,0 km · Diesel non disponible</div></div><div class="li__trail"><span class="price price--md price--avg">181<span class="price__tenth">9</span></span></div></li>
+      <hr class="divider divider--inset">
+      <li class="li"><span class="li__lead"><svg class="ico"><use href="#i-clock"/></svg></span><div class="li__text"><div class="li__primary">Actualisation automatique</div></div><div class="li__trail t-body2">5 min</div></li>
+    </ul></div></section>
+
+  <section id="table"><h2 class="sec">Table</h2><p class="sec-desc">Compare fuels at a station or stations side by side. Numbers right-aligned, tabular.</p>
+    <div class="stage" style="max-width:520px"><table class="table" data-insp="table">
+      <thead><tr><th>Station</th><th class="num">Régulier</th><th class="num">Super</th><th class="num">Diesel</th></tr></thead>
+      <tbody><tr class="is-best"><td>Costco Sherbrooke</td><td class="num">171,9</td><td class="num">191,9</td><td class="num">—</td></tr>
+      <tr><td>Couche-Tard #190</td><td class="num">179,9</td><td class="num">206,9</td><td class="num">278,9</td></tr>
+      <tr><td>M&amp;M Mini Marché</td><td class="num">199,9</td><td class="num">221,9</td><td class="num">—</td></tr></tbody></table></div></section>
+
+  <section id="tooltip"><h2 class="sec">Tooltip</h2><p class="sec-desc">Inverse surface. Used sparingly on long-press / hover.</p>
+    <div class="stage"><span class="tooltip" data-insp="tooltip">Prix relatif aux stations visibles sur la carte</span></div></section>
+
+  <section id="typography"><h2 class="sec">Typography component</h2><p class="sec-desc">MUI <code>&lt;Typography variant&gt;</code> → <code>.t-*</code> classes. See the full scale under Foundations.</p>
+    <div class="stage stage--col" data-insp="typography"><div class="t-overline">Estrie · Régulier</div><div class="t-h2">Le moins cher près de vous</div><div class="t-body1">40 stations à Sherbrooke. Moyenne du secteur : 182,0¢.</div><div class="t-caption">Données : Régie de l’énergie du Québec</div></div></section>
+
+  <section id="icon"><h2 class="sec">Icon component</h2><p class="sec-desc">inline 18 / default 24 / large 28 · outlined / filled. Glyph size ≠ touch area.</p>
+    <div class="stage"><svg class="ico ico--sm" data-insp="icon"><use href="#i-fuel"/></svg><svg class="ico" data-insp="icon"><use href="#i-fuel"/></svg><svg class="ico ico--lg" data-insp="icon"><use href="#i-fuel"/></svg><svg class="ico ico--lg ico--filled" data-insp="icon" style="color:var(--pricey-ink)"><use href="#i-heart"/></svg></div></section>
+
+  <!-- ================= FEEDBACK ================= -->
+  <section id="alert"><h2 class="sec">Alert</h2><p class="sec-desc">info / success / warning / error · standard (tonal) or filled.</p>
+    <div class="stage stage--col" style="align-items:stretch;max-width:560px">
+      <div class="alert alert--info" data-insp="alert"><svg class="ico"><use href="#i-info"/></svg><div><b>Position non partagée</b>Autorisez la localisation pour voir les stations autour de vous.</div></div>
+      <div class="alert alert--success" data-insp="alert"><svg class="ico"><use href="#i-trend-down"/></svg><div><b>Prix cible atteint</b>Costco Sherbrooke affiche 171,9¢, sous vos 172,9¢.</div></div>
+      <div class="alert alert--warning" data-insp="alert"><svg class="ico"><use href="#i-offline"/></svg><div><b>Hors ligne</b>Vous voyez les prix chargés à 9 h 50.</div></div>
+      <div class="alert alert--error alert--filled" data-insp="alert"><svg class="ico"><use href="#i-alert"/></svg><div><b>Impossible de charger les prix</b>La Régie ne répond pas. Nouvel essai dans 1 min.</div></div>
+    </div></section>
+
+  <section id="dialog"><h2 class="sec">Dialog</h2><p class="sec-desc">Basic confirm. Full-screen variant reuses the app bar + body.</p>
+    <div class="stage stage--bg"><div class="dialog" data-insp="dialog" role="dialog" aria-labelledby="dt"><div class="dialog__title" id="dt">Ouvrir l’itinéraire ?</div><div class="dialog__body">Choisissez l’application pour vous rendre au Costco Sherbrooke.</div><div class="dialog__actions"><button class="btn btn--text">Annuler</button><button class="btn btn--contained">Google Maps</button></div></div></div></section>
+
+  <section id="snackbar"><h2 class="sec">Snackbar</h2><p class="sec-desc">with / without action. Bottom, above the nav.</p>
+    <div class="stage stage--col"><div class="snackbar" data-insp="snackbar"><span class="snackbar__msg">Ajouté aux favoris</span><button class="btn btn--text btn--sm">Annuler</button></div>
+      <div class="snackbar" data-insp="snackbar"><span class="snackbar__msg">Prix mis à jour · 3 stations ont baissé</span></div></div></section>
+
+  <section id="progress"><h2 class="sec">Progress</h2><p class="sec-desc">linear / circular · determinate / indeterminate.</p>
+    <div class="stage">
+      <div class="cell"><div class="progress" data-insp="progress" role="progressbar" aria-valuenow="60"><div class="progress__bar" style="width:60%"></div></div><div class="spec">linear · 60%</div></div>
+      <div class="cell"><div class="progress progress--indeterminate" data-insp="progress" role="progressbar"><div class="progress__bar"></div></div><div class="spec">linear · indeterminate</div></div>
+      <div class="cell"><svg class="spinner" data-insp="progress" viewBox="0 0 44 44"><circle class="track" cx="22" cy="22" r="18"/><circle cx="22" cy="22" r="18"/></svg><div class="spec">circular</div></div>
+      <div class="cell"><svg class="spinner spinner--det" data-insp="progress" viewBox="0 0 44 44"><circle class="track" cx="22" cy="22" r="18"/><circle cx="22" cy="22" r="18" style="stroke-dasharray:85 200"/></svg><div class="spec">circular · 75%</div></div>
+    </div></section>
+
+  <section id="skeleton"><h2 class="sec">Skeleton</h2><p class="sec-desc">List row placeholder while stations load.</p>
+    <div class="stage" style="max-width:420px"><div class="stack stack--row" data-insp="skeleton" style="--gap:12px;width:100%"><span class="skeleton" style="width:40px;height:40px"></span><div class="stack" style="flex:1"><span class="skeleton skeleton--text" style="width:70%"></span><span class="skeleton skeleton--text" style="width:45%"></span></div><span class="skeleton" style="width:64px;height:30px"></span></div></div></section>
+
+  <section id="backdrop"><h2 class="sec">Backdrop</h2><p class="sec-desc">Scrim behind dialogs, drawers and the expanded sheet.</p>
+    <div class="stage" style="position:relative;height:140px;overflow:hidden;padding:0"><div class="mapbg" style="height:100%;border-radius:0"></div><div class="backdrop" data-insp="backdrop"></div></div></section>
+
+  <!-- ================= SURFACES ================= -->
+  <section id="appbar"><h2 class="sec">App bar</h2><p class="sec-desc">sign (ink, with wordmark) / surface / float (transparent over the map, controls on tonal plates).</p>
+    <div class="stage stage--col" style="align-items:stretch;max-width:420px">
+      <div class="appbar appbar--sign" data-insp="appbar" style="border-radius:var(--r-md)"><button class="iconbtn" aria-label="Menu"><svg class="ico"><use href="#i-menu"/></svg></button><span class="appbar__title">Le Plein</span><button class="iconbtn" aria-label="Rechercher"><svg class="ico"><use href="#i-search"/></svg></button></div>
+      <div class="appbar" data-insp="appbar" style="border-radius:var(--r-md)"><button class="iconbtn" aria-label="Retour"><svg class="ico"><use href="#i-back"/></svg></button><span class="appbar__title">Favoris</span><button class="iconbtn" aria-label="Trier"><svg class="ico"><use href="#i-sort"/></svg></button></div>
+    </div></section>
+
+  <section id="card"><h2 class="sec">Card</h2><p class="sec-desc">elevated / outlined / filled · actionable. Chunky <code>r-lg</code>.</p>
+    <div class="stage stage--bg" style="align-items:stretch">
+      <div class="card card--elevated card--action" data-insp="card" style="width:260px"><div class="card__row"><span class="avatar">Co</span><div style="flex:1"><div class="card__title">Costco Sherbrooke</div><div class="card__meta">3,4 km</div></div></div><div class="card__row" style="margin-top:12px;justify-content:space-between"><span class="level level--cheap">Bas prix</span><span class="price price--md price--cheap">171<span class="price__tenth">9</span></span></div></div>
+      <div class="card card--outlined" data-insp="card" style="width:220px"><div class="t-overline">Économie estimée</div><div class="t-h3 tnum" style="margin-top:6px">5,00 $</div><div class="card__meta">50 L ici plutôt qu’à la station la plus proche</div></div>
+      <div class="card card--filled" data-insp="card" style="width:220px"><div class="t-overline">Moyenne Estrie</div><div class="price price--md" style="margin-top:6px">182<span class="price__tenth">0</span><span class="price__unit">¢/L</span></div></div>
+    </div></section>
+
+  <section id="paper"><h2 class="sec">Paper</h2><p class="sec-desc">Raw surface at elevation 0–3 or outlined.</p>
+    <div class="stage stage--bg"><div class="paper paper--e0 elev" data-insp="paper">e0</div><div class="paper paper--e1 elev" data-insp="paper">e1</div><div class="paper paper--e2 elev" data-insp="paper">e2</div><div class="paper paper--outlined elev" data-insp="paper">outlined</div></div></section>
+
+  <section id="accordion"><h2 class="sec">Accordion</h2><p class="sec-desc">Station details: services, hours, data source.</p>
+    <div class="stage" style="max-width:460px;display:block"><div class="accordion" data-insp="accordion">
+      <details open><summary><svg class="ico"><use href="#i-info"/></svg>Détails de la station<svg class="ico"><use href="#i-chevron-down"/></svg></summary><div class="acc-body">Nom au registre : Costco Sherbrooke · Bannière : Costco · Région : Estrie</div></details>
+      <details><summary><svg class="ico"><use href="#i-clock"/></svg>Historique des prix<svg class="ico"><use href="#i-chevron-down"/></svg></summary><div class="acc-body">Disponible quand assez d’instantanés seront enregistrés.</div></details>
+    </div></div></section>
+
+  <!-- ================= NAVIGATION ================= -->
+  <section id="bottomnav"><h2 class="sec">Bottom navigation</h2><p class="sec-desc">3 destinations. Active = ink pill.</p>
+    <div class="stage" style="padding:0;overflow:hidden;max-width:420px"><nav class="bottomnav" data-insp="bottomnav" style="width:100%">
+      <button class="bottomnav__item" aria-current="page"><span class="pill"><svg class="ico"><use href="#i-map"/></svg></span>Carte</button>
+      <button class="bottomnav__item"><span class="pill"><svg class="ico"><use href="#i-list"/></svg></span>Liste</button>
+      <button class="bottomnav__item"><span class="pill badge-wrap"><svg class="ico"><use href="#i-heart"/></svg></span>Favoris</button>
+    </nav></div></section>
+
+  <section id="drawer"><h2 class="sec">Drawer</h2><p class="sec-desc">Modal, left. Settings and secondary destinations.</p>
+    <div class="stage stage--bg" style="padding:16px 0"><div class="drawer" data-insp="drawer">
+      <div class="drawer__head"><div class="wordmark"><span class="wordmark__plate">171<small style="font-size:.6em">9</small></span>Le Plein</div></div>
+      <a class="drawer__item" aria-current="page"><svg class="ico"><use href="#i-map"/></svg>Carte</a>
+      <a class="drawer__item"><svg class="ico"><use href="#i-bell"/></svg>Alertes de prix<span class="trail">2</span></a>
+      <a class="drawer__item"><svg class="ico"><use href="#i-settings"/></svg>Réglages</a>
+      <hr class="divider" style="margin:8px 12px">
+      <a class="drawer__item"><svg class="ico"><use href="#i-info"/></svg>À propos des données</a>
+    </div></div></section>
+
+  <section id="tabs"><h2 class="sec">Tabs</h2><p class="sec-desc">fixed / scrollable. Thick ink indicator.</p>
+    <div class="stage stage--col" style="align-items:stretch;max-width:420px">
+      <div class="tabs" role="tablist" data-insp="tabs"><button class="tab" role="tab" aria-selected="true">Prix</button><button class="tab" role="tab" aria-selected="false">Historique</button><button class="tab" role="tab" aria-selected="false">Infos</button></div>
+      <div class="tabs tabs--scroll" role="tablist" data-insp="tabs"><button class="tab" role="tab" aria-selected="false">Montréal</button><button class="tab" role="tab" aria-selected="true">Estrie</button><button class="tab" role="tab" aria-selected="false">Capitale-Nationale</button><button class="tab" role="tab" aria-selected="false">Mauricie</button></div>
+    </div></section>
+
+  <section id="menu"><h2 class="sec">Menu</h2><p class="sec-desc">Dropdown with checked item and separator.</p>
+    <div class="stage stage--bg"><ul class="menu" data-insp="menu" role="menu">
+      <li class="menu__item" role="menuitemradio" aria-checked="true">Prix le plus bas</li>
+      <li class="menu__item" role="menuitemradio" aria-checked="false">Distance</li>
+      <li><hr class="divider"></li>
+      <li class="menu__item" role="menuitem"><svg class="ico"><use href="#i-share"/></svg>Partager</li>
+      <li class="menu__item" role="menuitem"><svg class="ico"><use href="#i-copy"/></svg>Copier l’adresse</li>
+    </ul></div></section>
+
+  <section id="link"><h2 class="sec">Link</h2><p class="sec-desc">Route-sign blue, 2px underline. Quiet variant inherits text colour.</p>
+    <div class="stage"><span class="t-body1">Données : <a class="link" data-insp="link">Régie de l’énergie du Québec</a></span><a class="link link--quiet" data-insp="link">Voir toutes les stations</a></div></section>
+
+  <section id="stepper"><h2 class="sec">Stepper</h2><p class="sec-desc">First-run setup: location → fuel → install.</p>
+    <div class="stage" style="max-width:520px"><div class="stepper" data-insp="stepper">
+      <div class="step is-done"><span class="step__dot"><svg class="ico ico--sm" style="stroke-width:3"><use href="#i-check"/></svg></span>Position</div>
+      <div class="step is-active"><span class="step__dot">2</span>Carburant</div>
+      <div class="step"><span class="step__dot">3</span>Installer l’app</div>
+    </div></div></section>
+
+  <section id="speeddial"><h2 class="sec">Speed dial</h2><p class="sec-desc">Map layer actions from one FAB.</p>
+    <div class="stage stage--bg"><div class="speeddial" data-insp="speeddial">
+      <div class="speeddial__action"><span class="speeddial__label">Carte de chaleur</span><button class="fab fab--sm fab--surface" aria-label="Carte de chaleur"><svg class="ico"><use href="#i-layers"/></svg></button></div>
+      <div class="speeddial__action"><span class="speeddial__label">Radar des aubaines</span><button class="fab fab--sm fab--surface" aria-label="Radar"><svg class="ico"><use href="#i-radar"/></svg></button></div>
+      <button class="fab" aria-label="Fermer"><svg class="ico"><use href="#i-close"/></svg></button>
+    </div></div></section>
+
+  <section id="layout"><h2 class="sec">Box · Container · Grid · Stack</h2><p class="sec-desc">Layout utilities, not components: <code>.box</code>, <code>.container</code> (max 600, gutter 16), <code>.grid</code> (<code>--cols</code>), <code>.stack</code> / <code>.stack--row</code> (<code>--gap</code>), <code>.bleed</code> + <code>.inset</code>.</p>
+    <div class="stage" style="align-items:flex-start">
+      <div class="lay-demo stack" data-insp="layout" style="width:160px"><div>stack</div><div>gap-related</div><div>8px</div></div>
+      <div class="lay-demo grid" data-insp="layout" style="--cols:2;width:200px"><div>grid</div><div>cols 2</div><div>…</div><div>…</div></div>
+      <div class="lay-demo stack stack--row" data-insp="layout"><div>row</div><div class="spacer" style="background:none">spacer</div><div>end</div></div>
+    </div></section>
+</main>
+
+<script>
+/* ===== Foundations data (values read LIVE from :root, so both themes are accurate) ===== */
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue('--'+n).trim();
+const COLOR_GROUPS={
+ 'Interaction (ink signboard)':[['primary','on-primary'],['primary-strong','on-primary'],['primary-container','on-primary-container'],['secondary','on-secondary']],
+ 'Surfaces':[['bg','on-bg'],['surface','on-surface'],['surface-sunken','on-surface'],['muted-surface','on-muted-surface'],['inverse-surface','on-inverse-surface']],
+ 'Ink & lines':[['on-surface'],['muted'],['subtle'],['outline'],['border'],['border-faint']],
+ 'Price levels':[['cheap','on-cheap'],['cheap-container','on-cheap-container'],['avg','on-avg'],['avg-container','on-avg-container'],['pricey','on-pricey'],['pricey-container','on-pricey-container']],
+ 'Price ink (text on surface)':[['cheap-ink'],['avg-ink'],['pricey-ink'],['secondary-ink']],
+ 'Status':[['error','on-error'],['error-container','on-error-container'],['info-container','on-info-container']],
+ 'Signboard':[['sign','sign-cheap'],['sign','sign-avg'],['sign','sign-pricey'],['sign','on-sign'],['sign','sign-muted']]};
+function swatch([f,o]){
+  if(!o) return `<div class="sw"><div class="c" style="background:var(--surface);color:var(--${f});font:800 26px var(--font-display)">Aa 171⁹</div><div class="m"><div class="n">${f}</div><div class="v">${css(f)} on surface</div></div></div>`;
+  const signText=f==='sign';
+  const sample=signText?`<span style="font:800 26px var(--font-display);text-shadow:var(--sign-glow)">171⁹</span>`:`Aa · ${o}`;
+  return `<div class="sw"><div class="c" style="background:var(--${f});color:var(--${o})">${sample}</div><div class="m"><div class="n">${signText?o:f}</div><div class="v">${signText?css(o)+' on '+css(f):css(f)+' / '+css(o)}</div></div></div>`;}
+function renderColors(){colorGrid.innerHTML=Object.entries(COLOR_GROUPS).map(([g,list])=>`<div class="cgrp">${g}</div><div class="colors">${list.map(swatch).join('')}</div>`).join('');}
+const TYPE=[['t-h1','Condensed 800 / 48 · caps','Le Plein'],['t-h2','Condensed 800 / 36 · caps','Le moins cher près de vous'],['t-h3','Condensed 700 / 28','Costco Sherbrooke'],['t-h4','Barlow 700 / 22','Ouvrir l’itinéraire ?'],['t-h5','Barlow 600 / 18','Stations à proximité'],['t-h6','Barlow 600 / 16','Dépanneur Brompton'],['t-subtitle1','Barlow 500 / 16','245 rue Laval, Sherbrooke'],['t-subtitle2','Barlow 600 / 14','Mis à jour il y a 3 min'],['t-body1','Barlow 400 / 16 / 1.5','Le prix est relatif aux stations visibles sur la carte, du plus bas au plus élevé.'],['t-body2','Barlow 400 / 14','10,1¢ sous la moyenne du secteur.'],['t-button','Barlow 600 / 16','Itinéraire'],['t-caption','Barlow 400 / 12','Données : Régie de l’énergie du Québec'],['t-overline','Condensed 700 / 12 · +.14em','Estrie · Régulier']];
+const PRICE_TYPE=[['price--xl','Condensed 800 / 80 · tnum'],['price--lg','Condensed 800 / 56 · tnum'],['price--md','Condensed 800 / 34 · tnum'],['price--sm','Condensed 800 / 22 · tnum']];
+typeList.innerHTML=TYPE.map(([n,m,s])=>`<div class="typerow"><div class="tk">${n}<br>${m}</div><div class="${n}">${s}</div></div>`).join('')+PRICE_TYPE.map(([n,m])=>`<div class="typerow"><div class="tk">.price.${n}<br>${m}</div><span class="price ${n}">171<span class="price__tenth">9</span><span class="price__unit">¢/L</span></span></div>`).join('');
+const SPACING=[['sp-2',2],['sp-4',4],['sp-8',8],['sp-12',12],['sp-16',16],['sp-20',20],['sp-24',24],['sp-32',32],['sp-48',48],['sp-64',64]];
+spacingList.innerHTML=SPACING.map(([n,v])=>`<div class="sprow"><div class="lbl">${n} · ${v}px</div><div class="bar" style="width:${v*4}px"></div></div>`).join('')+
+ [['gap-related','8 · label ↔ value'],['gap-section','24 · between groups'],['gap-major','32 · major sections'],['layout-gutter','16 · screen edge'],['target-min','48 · tap target']].map(([n,d])=>`<div class="sprow"><div class="lbl">${n}</div><div class="bar" style="width:calc(var(--${n})*4);background:var(--secondary)"></div><span class="spec">${d}</span></div>`).join('');
+radiusList.innerHTML=['r-xs','r-sm','r-md','r-lg','r-xl','r-full'].map(n=>`<div class="cell"><div class="rad" style="border-radius:var(--${n})"></div><div class="spec">${n} · ${css(n)}</div></div>`).join('');
+elevList.innerHTML=['elev-0','elev-1','elev-2','elev-3','pin-shadow'].map(n=>`<div class="elev" style="box-shadow:var(--${n})">${n}</div>`).join('');
+motionList.innerHTML=[['dur-fast','press, hover'],['dur-base','switch, nav pill, sheet'],['dur-slow','price digit roll']].map(([n,d])=>`<div class="cell cell--l"><div class="t-h6">${n} · ${css(n)}</div><div class="spec">${d}</div></div>`).join('')+`<div class="cell cell--l"><div class="t-h6">ease / ease-spring</div><div class="spec">standard · slight overshoot</div></div>`;
+const ICONS=[...document.querySelectorAll('svg symbol')].map(s=>s.id.slice(2));
+iconGrid.innerHTML=ICONS.map(n=>`<div class="it"><svg class="ico ico--lg"><use href="#i-${n}"/></svg><div class="nm">i-${n}</div></div>`).join('');
+document.getElementById('indet').indeterminate=true;
+renderColors();
+new MutationObserver(renderColors).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* ===== SPECS: one entry per component (drives Inspector + Copy-as-prompt) =====
+   tokens: [role, tokenName] for CSS vars (value read live) or [role, name, literal]. */
+const F='design-system/styles.css';
+const S=(name,cls,desc,props,tokens,metrics)=>({name,file:`${F} → ${cls}`,desc,props:props.map(p=>{const[a,d]=p.split(' — ');const[nt,def]=a.split('=');const[n,t]=nt.split(':');return{n,t,def,d};}),tokens,metrics});
+const SPECS={
+ price:S('Price','.price','Pump-sign price display. Integer cents in Barlow Condensed 800 with tabular numerals; the tenth of a cent is raised at 50% size like a Québec gas sign; optional "¢/L" unit. Colour = price level relative to stations in view, but the level must also be stated in text nearby (Price level tag or copy). Unavailable fuel shows an em dash or "NON DISPONIBLE". On value change, digits roll up (dur-slow, ease-spring); disabled under prefers-reduced-motion. Always set aria-label like "171,9 cents le litre".',
+  ['value:number (cents, e.g. 171.9)','size:xl|lg|md|sm=md','level:cheap|avg|pricey|none=none','showUnit:bool=false','animate:bool=true — roll digits when value changes'],
+  [['cheap text','cheap-ink'],['avg text','avg-ink'],['pricey text','pricey-ink'],['neutral text','on-surface'],['unavailable','subtle'],['font','font-display'],['roll duration','dur-slow'],['roll easing','ease-spring']],
+  [['sizes','80 / 56 / 34 / 22 px'],['line-height','0.9'],['tenth','0.5em, raised'],['unit','0.28em, 700, baseline'],['numerals','tabular-nums lining-nums']]),
+ level:S('Price level','.level','Pill stating the price level in words with a dot: Bas prix / Moyen / Élevé. Pairs with Price so colour is never the only signal. Thresholds relative to stations in view (lowest third / middle / highest third).',
+  ['level:cheap|avg|pricey','label:String'],
+  [['cheap bg','cheap-container'],['cheap text','on-cheap-container'],['avg bg','avg-container'],['avg text','on-avg-container'],['pricey bg','pricey-container'],['pricey text','on-pricey-container']],
+  [['height','24'],['radius','r-full'],['dot','8'],['type','Condensed 700 / 12, caps, +.08em']]),
+ pricesign:S('Price sign','.sign','The roadside price board: ink board, one row per fuel (Régulier / Super / Diesel), huge LED-coloured digits. The selected fuel row has a marker dot and a sub-line comparing to the area average. Use once per screen (station sheet). At night digits get a soft neon glow (sign-glow).',
+  ['prices:{fuel, value|null, level}[]','currentFuel:Régulier|Super|Diesel','comparison:String? — e.g. "10,1¢ sous la moyenne du secteur"'],
+  [['board','sign'],['text','on-sign'],['labels','sign-muted'],['row rule','sign-rule'],['cheap digits','sign-cheap'],['avg digits','sign-avg'],['pricey digits','sign-pricey'],['glow','sign-glow']],
+  [['radius','r-lg (20)'],['padding','16 / 20'],['row padding','8 v'],['fuel label','Condensed 700 / 18 caps']]),
+ pin:S('Price pin + cluster','.pin / .cluster','Map marker: a small coloured plate with the price (integer + small tenth) on a 2px stalk, anchored bottom-centre on the station. Variants cheap/avg/pricey; selected = larger with ink outline, raised z; best = ring; favourite = dot. Cluster (zoomed out) = round ink plate with lowest price in LED green and the station count. Use with Leaflet divIcon / markercluster.',
+  ['price:number','level:cheap|avg|pricey','selected:bool=false','best:bool=false','favourite:bool=false','cluster.count:int','cluster.minPrice:number'],
+  [['cheap plate','cheap'],['cheap text','on-cheap'],['avg plate','avg'],['avg text','on-avg'],['pricey plate','pricey'],['pricey text','on-pricey'],['plate border','surface'],['shadow','pin-shadow'],['cluster','sign'],['cluster price','sign-cheap']],
+  [['plate height','30 (selected 38)'],['radius','r-sm (10)'],['type','Condensed 800 / 17 (22)'],['cluster','48 min, r-full, 3px border'],['tap area','≥ 48 via Leaflet iconSize']]),
+ stationsheet:S('Station sheet','.sheet','Bottom sheet raised over the map when a pin is tapped. Peek: grab handle, brand avatar, station name, address + distance, price. Expanded: Price sign, primary "Itinéraire" CTA (opens Apple Plans / Google Maps), favourite + share icon buttons, freshness, details accordion. Drag to expand/close; scrim only when expanded.',
+  ['station:{name, brand, address, distance, prices}','state:peek|expanded=peek','onDirections:callback','onFavourite:callback'],
+  [['surface','surface'],['handle','border'],['shadow','elev-3'],['gutter','layout-gutter']],
+  [['top radius','r-xl (28)'],['handle','40 × 5'],['peek height','~120'],['z-index','1250']]),
+ freshness:S('Freshness','.fresh','Clock icon + age of the data. States: fresh (muted), stale > 30 min (avg-ink), offline (error-ink, wifi-off icon, shows time of last load).',
+  ['updatedAt:Date','offline:bool=false'],[['fresh','muted'],['stale','avg-ink'],['offline','error-ink']],[['icon','16'],['type','Barlow 500 / 13']]),
+ gauge:S('Fuel gauge loader','.gauge','Signature loading indicator: a fuel gauge arc with E / F and a red needle sweeping. Use for the initial price load; static under reduced motion. role="progressbar" with an aria-label.',
+  ['label:String=Chargement des prix…'],[['arc','surface-sunken'],['needle','pricey'],['ticks','muted'],['hub','on-surface']],[['size','120 × 70'],['arc stroke','10'],['sweep','-80° → 80°, 1.6s alternate']]),
+ radar:S('Deal radar','.radar','Phase 3 preview: round ink board with range rings and a rotating green sweep; dots mark the cheapest nearby stations.',
+  ['stations:{x,y}[]'],[['board','sign'],['rings','sign-rule'],['sweep / dots','sign-cheap']],[['size','120'],['sweep','2.4s linear']]),
+ button:S('Button','.btn','MUI Button. variant contained (ink signboard fill) / outlined (2px ink) / text; size sm (40, keeps 48 hit area) / md (48) / lg (56); color primary / secondary / error. Press scales to .97; 2px focus ring with offset. Optional leading icon at 20px.',
+  ['label:String','variant:contained|outlined|text=contained','size:sm|md|lg=md','color:primary|secondary|error=primary','startIcon:Icon?','fullWidth:bool=false','disabled:bool=false'],
+  [['contained fill','primary'],['contained label','on-primary'],['hover','primary-strong'],['outline / text','primary-ink'],['secondary','secondary'],['error','error'],['focus ring','ring']],
+  [['height','40 / 48 / 56'],['radius','r-sm / r-md / r-lg'],['padding h','16 / 20 / 24'],['border','2'],['type','Barlow 600 / 14·16·18']]),
+ buttongroup:S('Button group','.btngroup','Related buttons sharing one 2px outline with dividers (map zoom, choose maps app).',['children:Button[]','orientation:horizontal|vertical=horizontal'],[['outline','primary-ink'],['label','primary-ink']],[['height','48'],['radius','r-md'],['divider','2']]),
+ iconbutton:S('Icon button','.iconbtn','48px round icon button. standard / filled (ink) / tonal (surface + elev-2, floats over map) / outlined. Toggle via aria-pressed: favourite turns pricey-ink with filled heart.',
+  ['icon:Icon','variant:standard|filled|tonal|outlined=standard','pressed:bool?','aria-label:String (required)','disabled:bool=false'],
+  [['icon','on-surface'],['filled bg','primary'],['filled icon','on-primary'],['tonal bg','surface'],['tonal shadow','elev-2'],['toggled','pricey-ink']],[['size','48'],['glyph','24'],['radius','r-full']]),
+ fab:S('FAB','.fab','Floating action button. regular 56 / small 48 / extended with label; ink by default, surface variant over busy maps. Max one per screen.',['icon:Icon','label:String?','size:regular|small=regular','color:primary|surface=primary'],[['bg','primary'],['icon','on-primary'],['shadow','elev-3']],[['size','56 / 48'],['radius','r-lg / r-md'],['extended padding','16 / 20']]),
+ checkbox:S('Checkbox','.check','22px box, 2px outline, ink when checked; indeterminate bar. Whole row is the 48px target.',['checked:bool','indeterminate:bool=false','label:String','disabled:bool=false'],[['outline','outline'],['checked fill','primary'],['check','on-primary']],[['box','22'],['radius','r-xs'],['row height','48']]),
+ radiogroup:S('Radio group','.radiogroup','Vertical list of radios; dot scales in with ease-spring.',['value:String','options:{label,value,disabled}[]'],[['ring','outline'],['selected','primary']],[['dot','22 / 10'],['row height','48']]),
+ switch:S('Switch','.switch','52×32 track, thumb slides with ease-spring; on = ink track.',['checked:bool','label:String','disabled:bool=false'],[['off track','surface-sunken'],['off border/thumb','outline'],['on track','primary'],['on thumb','on-primary']],[['track','52 × 32'],['thumb','20'],['travel','20']]),
+ select:S('Select','.field.select','Native <select> styled as outlined text field with a chevron; best on phones.',['label:String','value:String','options:String[]'],[['border','outline'],['focus','primary-ink'],['chevron','muted']],[['height','52'],['radius','r-md'],['border','2']]),
+ autocomplete:S('Autocomplete','.autocomplete','Search field (pill, elev-2) + listbox. Matches in bold; hint on the right (station count).',['query:String','options:{label,hint}[]','onSelect:callback'],[['field bg','surface'],['listbox','surface'],['active row','muted-surface'],['hint','muted']],[['field height','48'],['row height','48'],['listbox radius','r-md']]),
+ slider:S('Slider','.slider','8px track, 26px thumb with 3px ink ring. Continuous, discrete with marks, or range. Value label on inverse surface while dragging.',['value:number|[number,number]','min:number','max:number','step:number?','marks:number[]?'],[['track','surface-sunken'],['fill','primary'],['thumb','surface'],['thumb ring','primary'],['label bg','inverse-surface']],[['track','8'],['thumb','26'],['target','48']]),
+ textfield:S('Text field','.field','MUI TextField. filled (sunken, bottom border) / outlined (2px) / standard (underline). Label above, helper below; leading/trailing adornments; states focus / error / disabled. 52px tall.',
+  ['label:String','value:String','variant:filled|outlined|standard=outlined','helperText:String?','error:bool=false','disabled:bool=false','startAdornment:Icon?','endAdornment:String|Icon?'],
+  [['outline','outline'],['focus','primary-ink'],['focus halo','primary-container'],['error','error-ink'],['filled bg','surface-sunken'],['label','muted']],[['height','52'],['radius','r-md'],['border','2'],['label','Barlow 600 / 13'],['input','Barlow 500 / 16']]),
+ togglebutton:S('Toggle button','.toggle','Exclusive segmented group on a sunken track: fuel type selector. Selected = ink plate with elev-1. Float variant for use over the map.',['value:Régulier|Super|Diesel','options:String[]','float:bool=false'],[['track','surface-sunken'],['selected bg','primary'],['selected text','on-primary'],['text','muted']],[['option height','40 (+4 padding = 48)'],['radius','r-md / r-sm'],['type','Barlow 600 / 15']]),
+ rating:S('Rating','.rating','Not yet used: the data has no ratings. Kept so the catalogue is complete.',['value:number','max:int=5'],[['on','avg'],['off','border']],[['star','22']]),
+ avatar:S('Avatar','.avatar','Brand monogram (2 letters) on a mini ink signboard. No brand logos. Indépendant/unknown = muted. Sizes 28 / 40 / 56; plate (rounded square) or circle.',['brand:String','size:sm|md|lg=md','shape:plate|circle=plate'],[['bg','sign'],['text','on-sign'],['muted bg','muted-surface']],[['size','28 / 40 / 56'],['radius','r-xs / r-sm / r-md'],['type','Condensed 800 caps']]),
+ badge:S('Badge','.badge','Dot or count on an icon button; 2px surface ring to detach from the icon.',['content:int?','variant:dot|standard=standard'],[['bg','pricey'],['text','on-pricey'],['ring','surface']],[['size','18 / dot 10'],['radius','r-full']]),
+ chip:S('Chip','.chip','36px pill with 48px hit area. Filter (aria-pressed → ink), input (removable ×), float (no border, elev-2, over the map), disabled.',['label:String','variant:filter|input|float=filter','selected:bool=false','onDelete:callback?','icon:Icon?'],[['bg','surface'],['border','border'],['hover','muted-surface'],['selected bg','primary'],['selected text','on-primary']],[['height','36 (+12 hit)'],['radius','r-full'],['border','2'],['type','Barlow 600 / 14']]),
+ divider:S('Divider','.divider','1px border line: full, inset (aligned to list text), vertical; road variant = dashed amber centre line, decorative only.',['variant:full|inset|vertical|road=full'],[['line','border'],['road','avg']],[['thickness','1 (road 4)'],['inset','16 + 40 + 12']]),
+ list:S('List','.list / .li','One/two/three-line items: leading avatar or icon, primary + secondary text (clamp 2), trailing price. Subheader in overline style. Rows are buttons with 4% hover.',['items:{lead, primary, secondary, trail}[]','subheader:String?'],[['bg','surface'],['primary text','on-surface'],['secondary text','muted'],['subheader','muted']],[['min height','56'],['padding','8 / 16'],['gap','12']]),
+ table:S('Table','.table','Simple data table, overline headers, tabular numbers right-aligned, best row highlighted in cheap-container.',['columns:{label,numeric}[]','rows:any[][]','bestRow:int?'],[['header','muted'],['header rule','border'],['row rule','border-faint'],['best bg','cheap-container'],['best text','on-cheap-container']],[['cell padding','12'],['header rule','2']]),
+ tooltip:S('Tooltip','.tooltip','Inverse surface bubble with arrow. Max 220px.',['title:String','placement:top|bottom=top'],[['bg','inverse-surface'],['text','on-inverse-surface']],[['radius','r-sm'],['padding','8 / 12'],['z','1500']]),
+ typography:S('Typography','.t-*','MUI Typography variants h1–h6, subtitle1/2, body1/2, button, caption, overline. h1–h3 + overline use Barlow Condensed; the rest Barlow.',['variant:h1…overline=body1','component:tag?'],[['display face','font-display'],['reading face','font-body'],['text','on-surface'],['secondary','muted']],[['h1','800 / 48 caps'],['h4','700 / 22'],['body1','400 / 16 / 1.5'],['caption','400 / 12']]),
+ icon:S('Icon','.ico','Inline SVG from the sprite: <svg class="ico"><use href="#i-fuel"/></svg>. stroke currentColor, 2px, round. Sizes inline 18 / 24 / large 28; filled variant.',['name:String','size:sm|md|lg=md','filled:bool=false'],[['size','icon-size'],['stroke','icon-stroke']],[['sizes','18 / 24 / 28'],['stroke','2'],['viewBox','24']]),
+ alert:S('Alert','.alert','info / success / warning / error; standard (tonal container) or filled. Icon + bold title + body.',['severity:info|success|warning|error','variant:standard|filled=standard','title:String?','message:String'],[['info','info-container'],['success','cheap-container'],['warning','avg-container'],['error','error-container'],['filled error','error']],[['radius','r-md'],['padding','12 / 16']]),
+ dialog:S('Dialog','.dialog','Basic dialog: title, body, right-aligned actions (text + contained). Over a scrim. Full-screen variant = app bar + body.',['open:bool','title:String','body:String','actions:Button[]'],[['surface','surface'],['title','on-surface'],['body','muted'],['shadow','elev-3'],['scrim','scrim']],[['width','312'],['radius','r-xl'],['padding','24']]),
+ snackbar:S('Snackbar','.snackbar','Inverse surface toast with optional text action; bottom, above the bottom nav; 4s.',['message:String','action:{label,onClick}?'],[['bg','inverse-surface'],['text','on-inverse-surface'],['shadow','elev-3']],[['min height','52'],['max width','344'],['radius','r-md']]),
+ progress:S('Progress','.progress / .spinner','Linear (6px) and circular (40px), determinate or indeterminate. For first load prefer the Fuel gauge.',['variant:determinate|indeterminate','type:linear|circular','value:0–100?'],[['track','surface-sunken'],['bar','primary']],[['linear height','6'],['circular','40, stroke 4']]),
+ skeleton:S('Skeleton','.skeleton','Shimmering placeholder blocks for list rows / cards while loading.',['variant:text|rect|circle','width','height'],[['bg','surface-sunken'],['shimmer','surface']],[['text height','12'],['radius','r-sm']]),
+ backdrop:S('Backdrop','.backdrop','Full-bleed scrim behind modal surfaces.',['open:bool'],[['scrim','scrim']],[['opacity','.48 light / .6 dark']]),
+ appbar:S('App bar','.appbar','Top bar. sign (ink with wordmark), surface (title + back), float (transparent over the map; controls are tonal plates).',['title:String','variant:sign|surface|float=surface','leading:IconButton?','actions:IconButton[]'],[['sign bg','sign'],['sign text','on-sign'],['surface','surface'],['title font','font-display']],[['height','56'],['title','Condensed 800 / 22 caps']]),
+ card:S('Card','.card','Chunky card. elevated (elev-2) / outlined (2px border) / filled (muted surface); actionable cards scale to .985 on press.',['variant:elevated|outlined|filled=elevated','onClick:callback?','children'],[['bg','surface'],['shadow','elev-2'],['border','border'],['filled','muted-surface'],['meta','muted']],[['radius','r-lg (20)'],['padding','16']]),
+ paper:S('Paper','.paper','Raw surface primitive with elevation 0–3 or outlined.',['elevation:0–3=1','variant:elevation|outlined'],[['bg','surface'],['e1','elev-1'],['e2','elev-2'],['e3','elev-3']],[['radius','r-md']]),
+ accordion:S('Accordion','.accordion','Native <details> groups, chevron rotates 180°. Station details, history.',['items:{icon,title,body}[]','defaultOpen:int?'],[['bg','surface'],['border','border'],['body','muted']],[['row height','56'],['radius','r-md'],['border','2']]),
+ bottomnav:S('Bottom navigation','.bottomnav','3 destinations (Carte / Liste / Favoris). Active = ink pill behind the icon, label in on-surface. Respects safe-area inset.',['items:{icon,label}[]','value:int'],[['bg','surface'],['border','border'],['inactive','muted'],['active pill','primary'],['active icon','on-primary']],[['height','72 + safe area'],['pill','56 × 30']]),
+ drawer:S('Drawer','.drawer','Modal navigation drawer from the left; active item on primary-container pill. Bottom anchor = Station sheet.',['open:bool','items:{icon,label,trail}[]','anchor:left|bottom=left'],[['bg','surface'],['active bg','primary-container'],['active text','on-primary-container'],['icon','muted']],[['width','288'],['item height','52'],['radius','r-xl (outer)']]),
+ tabs:S('Tabs','.tabs','Fixed or scrollable tabs, 4px ink indicator with rounded top.',['value:int','labels:String[]','variant:fixed|scrollable=fixed'],[['text','muted'],['selected','on-surface'],['indicator','primary'],['rule','border']],[['height','48'],['indicator','4']]),
+ menu:S('Menu','.menu','Dropdown list; checked item bold with tick; separators.',['items:{label,icon,checked}[]','anchor:Element'],[['bg','surface'],['hover','muted-surface'],['shadow','elev-3']],[['min width','220'],['item height','48'],['radius','r-md']]),
+ link:S('Link','.link','Route-sign blue text with 2px underline (3px on hover). Quiet = inherits colour.',['href:String','variant:default|quiet=default'],[['colour','link'],['quiet underline','border']],[['underline','2 / offset 3']]),
+ stepper:S('Stepper','.stepper','Horizontal stepper for first-run setup; done = ink dot with check, active = ink ring.',['steps:String[]','active:int'],[['done','primary'],['active ring','primary'],['connector','border']],[['dot','32'],['type','Barlow 600 / 13']]),
+ speeddial:S('Speed dial','.speeddial','FAB that opens small surface FABs with labels (map layers).',['actions:{icon,label}[]','open:bool'],[['labels','surface'],['actions','surface'],['main','primary']],[['action','48'],['gap','12']]),
+ layout:S('Layout primitives','.box/.container/.grid/.stack','Box, Container (max 600, gutter 16), Grid (--cols), Stack (--gap; row variant), spacer, bleed/inset. Utilities, not components.',['gap:token=gap-related','cols:int=2'],[['gap','gap-related'],['section gap','gap-section'],['gutter','layout-gutter']],[['container','600 max']]),
+};
+
+/* ===== Copy-as-prompt ===== */
+const LANGS=['HTML + CSS + JS (ES modules, no build)','React (TypeScript + CSS)','React Native','Flutter (Dart)','SwiftUI','Jetpack Compose (Kotlin)'];
+let promptLang=LANGS[0];
+langSel.innerHTML=LANGS.map(l=>`<option${l===promptLang?' selected':''}>${l}</option>`).join('');
+langSel.onchange=()=>promptLang=langSel.value;
+const tokVal=t=>t[2]!==undefined?t[2]:(css(t[1])||t[1]);
+const isColor=v=>/^#|^rgb|^hsl/.test(v);
+const varGroups={
+ 'Palette (every fill paired with its --on-*)':['--primary','--on-primary','--primary-strong','--primary-ink','--primary-container','--on-primary-container','--secondary','--on-secondary','--secondary-ink','--bg','--on-bg','--surface','--on-surface','--surface-sunken','--muted-surface','--on-muted-surface','--muted','--subtle','--outline','--border','--border-faint','--hairline','--inverse-surface','--on-inverse-surface','--scrim','--error','--on-error','--error-ink','--error-container','--on-error-container','--info-container','--on-info-container','--link'],
+ 'Price levels':['--cheap','--on-cheap','--cheap-ink','--cheap-container','--on-cheap-container','--avg','--on-avg','--avg-ink','--avg-container','--on-avg-container','--pricey','--on-pricey','--pricey-ink','--pricey-container','--on-pricey-container'],
+ 'Signboard':['--sign','--on-sign','--sign-muted','--sign-rule','--sign-cheap','--sign-avg','--sign-pricey','--sign-glow'],
+ 'Map placeholder':['--map-land','--map-park','--map-water','--map-road','--map-major'],
+ 'Action states':['--state-hover','--state-focus','--state-pressed','--state-selected','--disabled-opacity'],
+ 'Spacing':['--gap-related','--gap-section','--gap-major','--layout-gutter','--target-min','--sp-2','--sp-4','--sp-8','--sp-12','--sp-16','--sp-20','--sp-24','--sp-32','--sp-48','--sp-64'],
+ 'Shape':['--r-xs','--r-sm','--r-md','--r-lg','--r-xl','--r-full'],
+ 'Shadows':['--elev-0','--elev-1','--elev-2','--elev-3','--pin-shadow'],
+ 'Craft':['--ring','--focus-ring'],
+ 'Type families':['--font-display','--font-body','--font-mono'],
+ 'Motion':['--dur-fast','--dur-base','--dur-slow','--ease','--ease-spring'],
+ 'Icons':['--icon-size','--icon-inline','--icon-large','--icon-stroke','--icon-cap','--icon-join','--icon-fill'],
+ 'Breakpoints & z-index':['--bp-sm','--bp-md','--bp-lg','--z-appbar','--z-drawer','--z-sheet','--z-dialog','--z-snackbar','--z-tooltip']};
+function tokenLines(){const cs=getComputedStyle(document.documentElement);const out=[`(Current theme: ${document.documentElement.dataset.theme==='dark'?'dark / Nuit':'light / Jour'}. The other theme overrides the same names — see styles.css :root[data-theme="dark"].)`,''];
+ for(const[grp,names]of Object.entries(varGroups)){const rows=names.map(n=>{const v=cs.getPropertyValue(n).trim();return v?`- ${n} = ${v}`:null;}).filter(Boolean);if(rows.length)out.push(`### ${grp}`,...rows,'');}
+ return out;}
+function foundationsBody(){const L=[`## Foundations — design tokens (single source of truth)`,`Define every token below as a named constant in ONE theme file, idiomatic to ${promptLang}. Components reference tokens by name — never inline raw values. Ship both light (Jour) and dark (Nuit) values.`,'',...tokenLines(),`### Type scale`];
+ TYPE.forEach(([n,m])=>L.push(`- ${n}: ${m}`));PRICE_TYPE.forEach(([n,m])=>L.push(`- .price.${n}: ${m}`));
+ L.push('',`### Rules`,`- The price is the hero; chrome stays ink-on-enamel. Only the three price colours are saturated.`,`- Never colour alone: every coloured price is paired with a number and a level label.`,`- Every fill stays paired with its --on-* (WCAG ≥ 4.5:1); coloured text uses *-ink tokens.`,`- Tap targets ≥ 48px. Motion < 400ms, never blocking, off under prefers-reduced-motion.`,`- UI copy is French (fr-CA): decimal comma, "¢/L", "km".`);
+ return L.join('\n');}
+function buildPrompt(key){const s=SPECS[key];const L=[`# Add or update the \`${s.name}\` component — ${promptLang}`,'',
+  `A component from the Le Plein design system ("Panneau de prix"). If a component with this role ALREADY EXISTS, modify it IN PLACE to match this spec (source of truth) — don't duplicate, note breaking changes. Otherwise create it, reusing existing tokens.`,'',`## What it is`,s.desc,'',`## Props`];
+  s.props.forEach(p=>L.push(`- \`${p.n}\`: ${p.t||''}${p.def?` (default ${p.def})`:''}${p.d?` — ${p.d}`:''}`));
+  L.push('',`## Design tokens (reference by name; never inline)`);s.tokens.forEach(t=>L.push(`- ${t[1]} = ${tokVal(t)}   // ${t[0]}`));
+  L.push('',`## Metrics`);s.metrics.forEach(([k,v])=>L.push(`- ${k}: ${v}`));
+  L.push('',`## Requirements`,`- Implement every variant/state listed. Works in light and dark themes.`,`- Touch targets ≥ 48px; visible focus ring (--focus-ring); respect prefers-reduced-motion.`,`- Output complete ${promptLang} code + a short usage example with French copy.`);return L.join('\n');}
+function copyPrompt(key){copyText(buildPrompt(key));toast(`Copied: ${SPECS[key].name} → ${promptLang}`);}
+function fullSystemPrompt(){const keys=Object.keys(SPECS);const L=[`# Install or update the ENTIRE Le Plein design system — ${promptLang}`,'',`Scaffold it from scratch, or update existing parts IN PLACE to match this spec (source of truth).`,'',`## Build order`,`1. Implement the foundation token layer below (light + dark).`,`2. Build the components; you may split them across parallel workers, but every component imports the shared token layer — never redefine values locally.`,`3. Reconcile: one components index + a pass confirming only named tokens are used.`,'','---','',foundationsBody(),'','---','',`## Components (${keys.length})`];
+ keys.forEach(k=>{const s=SPECS[k];L.push('',`### ${s.name} — \`${s.file}\``,s.desc,`- props: ${s.props.map(p=>p.n+':'+(p.t||'')).join(', ')}`,`- tokens: ${s.tokens.map(t=>t[1]).join(', ')}`,`- metrics: ${s.metrics.map(m=>m[0]+' '+m[1]).join(', ')}`);});
+ return L.join('\n');}
+function copyFullSystem(){copyText(fullSystemPrompt());toast(`Copied: Install design system (${Object.keys(SPECS).length} components) → ${promptLang}`);}
+function copyText(t){navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{});}
+document.querySelectorAll('main section[id]').forEach(sec=>{const key=sec.id;if(!SPECS[key])return;const h=sec.querySelector('h2.sec');if(!h)return;
+  const b=document.createElement('button');b.className='sec-prompt';b.type='button';b.textContent='Copy as prompt';b.addEventListener('click',()=>copyPrompt(key));h.appendChild(b);});
+
+/* ===== Dev Mode + Inspector ===== */
+function toggleDev(){const on=document.body.classList.toggle('dev');devToggle.classList.toggle('on',on);devToggle.textContent=on?'◧ Dev Mode · ON':'◧ Dev Mode';if(!on)closeInspector();}
+function closeInspector(){document.body.classList.remove('inspecting');document.querySelectorAll('.insp-sel').forEach(e=>e.classList.remove('insp-sel'));}
+document.addEventListener('click',e=>{if(e.target.closest('#inspector')||e.target.closest('#topctl'))return;if(!document.body.classList.contains('dev'))return;
+  const el=e.target.closest('[data-insp]');if(el&&SPECS[el.dataset.insp]){e.preventDefault();selectComp(el,el.dataset.insp);}},true);
+function selectComp(el,key){document.querySelectorAll('.insp-sel').forEach(x=>x.classList.remove('insp-sel'));el.classList.add('insp-sel');document.body.classList.add('inspecting');const s=SPECS[key];
+  const props=s.props.map(p=>`<div class="prop"><span class="pn">${p.n}</span> <span class="pt">${(p.t||'').replace(/</g,'&lt;')}</span>${p.def?` <span class="pdef">= ${p.def}</span>`:''}${p.d?`<div class="pd">${p.d}</div>`:''}</div>`).join('');
+  const toks=s.tokens.map(t=>{const v=tokVal(t);return`<div class="tok" data-v="${v.replace(/"/g,'&quot;')}"><div class="tsw" style="background:${isColor(v)?v:'var(--bg)'}"></div><div><div class="tn">--${t[1]}</div><div class="tr">${t[0]}</div></div><div class="tv">${v}</div></div>`;}).join('');
+  const mets=s.metrics.map(([k,v])=>`<div class="metric"><span class="mk">${k}</span><span>${v}</span></div>`).join('');
+  inspectorBody.innerHTML=`<div class="nm">${s.name}</div><div class="file">${s.file}</div><div class="desc">${s.desc.replace(/</g,'&lt;')}</div><h4>Properties</h4>${props}<h4>Design tokens · click to copy</h4>${toks}<h4>Metrics</h4>${mets}<button class="btn btn--contained btn--block" style="margin-top:18px" onclick="copyPrompt('${key}')"><svg class="ico"><use href="#i-copy"/></svg>Copy as prompt</button>`;
+  inspectorBody.querySelectorAll('.tok').forEach(t=>t.onclick=()=>{copyText(t.dataset.v);toast('Copied '+t.dataset.v);});}
+function toast(msg){const c=document.getElementById('copied');c.textContent=msg;c.classList.add('show');setTimeout(()=>c.classList.remove('show'),1400);}
+</script>
+</body>
+</html>
