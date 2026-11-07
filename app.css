@@ -157,3 +157,12 @@ section[id^="view-"]{position:absolute;inset:0}
   #top .toggle .toggle__opt{padding:0 8px;font-size:14px;min-width:44px}
   #top .iconbtn{width:44px;height:44px}
 }
+
+/* Brand badges: brand name in text on the brand colour; no logos. Keeps its own colours in dark mode, outlined for edge contrast. */
+.brand-badge{display:inline-block;max-width:100%;padding:2px 8px;border-radius:var(--r-full);background:var(--bb);color:var(--bb-on);
+  font:700 12px/1.4 var(--font-body);letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;
+  box-shadow:inset 0 0 0 1px rgb(128 128 128 / .35)}
+.brand-badge--sm{padding:0 6px;font-size:11px}
+.avatar--brand{background:var(--bb);color:var(--bb-on);box-shadow:inset 0 0 0 1px rgb(128 128 128 / .35)}
+.pin__brand{position:absolute;left:6px;right:6px;bottom:-1px;height:4px;border-radius:var(--r-full);background:var(--bb);box-shadow:0 0 0 1px var(--surface)}
+.pin__plate{position:relative}

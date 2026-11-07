@@ -6,6 +6,7 @@ import { confetti, vibrate } from './effects.js';
 import { createHeatLayer } from './heat.js';
 import { loadHistory, stationId, stationSeries, regionSeries, trendOf, trendText, chartSVG } from './history.js';
 import { renderShareCard } from './sharecard.js';
+import { brandBadge, brandColors } from './brands.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -160,7 +161,7 @@ function pinIcon(s) {
   const cls = `pin pin--${stationLevel(s)}${state.favs.has(s.key) ? ' pin--fav' : ''}${sel ? ' pin--selected' : ''}${state.radarKeys.has(s.key) ? ' pin--best' : ''}`;
   return L.divIcon({
     className: 'lp-icon', iconSize: [0, 0], iconAnchor: [0, 0],
-    html: `<div class="${cls}"><span class="pin__plate">${whole}<small>${tenth}</small></span><span class="pin__stalk"></span></div>`,
+    html: `<div class="${cls}"><span class="pin__plate">${whole}<small>${tenth}</small><i class="pin__brand" data-brand="${esc(s.brand)}" style="--bb:${brandColors(s.brand)[0]}"></i></span><span class="pin__stalk"></span></div>`,
   });
 }
 
@@ -248,9 +249,9 @@ function renderBest() {
   el.innerHTML = `
     <div class="card__row"><span class="t-overline">Le moins cher ici</span><span class="fresh"></span></div>
     <div class="card__row">
-      <span class="avatar" aria-hidden="true">${esc(initials(best.brand))}</span>
+      <span class="avatar avatar--brand" style="--bb:${brandColors(best.brand)[0]};--bb-on:${brandColors(best.brand)[1]}" aria-hidden="true">${esc(initials(best.brand))}</span>
       <div style="flex:1;min-width:0"><div class="card__title">${esc(title(best))}</div>
-      <div class="card__meta">${d != null ? fmtDist(d) + ' · ' : ''}${esc(best.addr)}</div></div>
+      <div class="card__meta">${brandBadge(best.brand, 'brand-badge--sm')} ${d != null ? fmtDist(d) + ' · ' : ''}${esc(best.addr)}</div></div>
       ${priceHTML(p, 'lg', stationLevel(best), { roll: state.roll })}
     </div>`;
   el.setAttribute('aria-label', `Le moins cher dans cette zone : ${title(best)}, ${fmt1(p)} cents. Ouvrir la fiche`);
@@ -291,9 +292,9 @@ function itemHTML(s, { favMark = false } = {}) {
   const isFav = state.favs.has(s.key);
   const city = s.addr;
   return `<li><button class="li li--button" data-key="${esc(s.key)}">
-    <span class="avatar" aria-hidden="true">${esc(initials(s.brand))}</span>
+    <span class="avatar avatar--brand" style="--bb:${brandColors(s.brand)[0]};--bb-on:${brandColors(s.brand)[1]}" aria-hidden="true">${esc(initials(s.brand))}</span>
     <span class="li__text"><span class="li__primary" style="display:block">${esc(title(s))}</span>
-      <span class="li__secondary clamp" style="display:block">${d != null ? fmtDist(d) + ' · ' : ''}${esc(city)}</span></span>
+      <span class="li__secondary clamp" style="display:block">${brandBadge(s.brand, 'brand-badge--sm')} ${d != null ? fmtDist(d) + ' · ' : ''}${esc(city)}</span></span>
     <span class="li__trail">${priceHTML(p, 'md', lvl, { roll: state.roll })}${lvl ? `<span class="level level--${lvl}">${LEVEL_LABEL[lvl]}</span>` : ''}</span>
     ${isFav && !favMark ? `<span class="li__lead fav" title="Favori">${ico('heart')}<span class="sr-only">Favori</span></span>` : ''}
   </button></li>`;
@@ -338,9 +339,9 @@ function favItem(s) {
   const lvl = stationLevel(s);
   const d = distTo(s);
   return `<li><button class="li li--button" data-key="${esc(s.key)}">
-    <span class="avatar" aria-hidden="true">${esc(initials(s.brand))}</span>
+    <span class="avatar avatar--brand" style="--bb:${brandColors(s.brand)[0]};--bb-on:${brandColors(s.brand)[1]}" aria-hidden="true">${esc(initials(s.brand))}</span>
     <span class="li__text"><span class="li__primary" style="display:block">${esc(title(s))}</span>
-    <span class="li__secondary clamp" style="display:block">${d != null ? fmtDist(d) + ' · ' : ''}${esc(s.addr)}</span>${watchLine(s)}</span>
+    <span class="li__secondary clamp" style="display:block">${brandBadge(s.brand, 'brand-badge--sm')} ${d != null ? fmtDist(d) + ' · ' : ''}${esc(s.addr)}</span>${watchLine(s)}</span>
     <span class="li__trail">${priceHTML(p, 'md', lvl, { roll: state.roll })}${lvl ? `<span class="level level--${lvl}">${LEVEL_LABEL[lvl]}</span>` : `<span class="t-caption">${FUELS[state.fuel]} n/d</span>`}</span>
   </button></li>`;
 }
@@ -404,9 +405,9 @@ function openStation(key, { fromMap = false } = {}) {
     <div class="sheet__scroll stack" style="--gap:var(--sp-16)">
       <div class="sheet__bar">
         <div class="card__row" style="min-width:0;flex:1">
-          <span class="avatar avatar--lg" aria-hidden="true">${esc(initials(s.brand))}</span>
+          <span class="avatar avatar--lg avatar--brand" style="--bb:${brandColors(s.brand)[0]};--bb-on:${brandColors(s.brand)[1]}" aria-hidden="true">${esc(initials(s.brand))}</span>
           <div style="min-width:0"><h2 class="t-h3" id="sheet-title" tabindex="-1" data-focus>${esc(title(s))}</h2>
-          <div class="card__meta">${esc(s.addr)}${d != null ? ' · ' + fmtDist(d) : ''}</div></div>
+          <div class="card__meta">${brandBadge(s.brand)} ${esc(s.addr)}${d != null ? ' · ' + fmtDist(d) : ''}</div></div>
         </div>
         <div class="stack stack--row">
           <button class="iconbtn" data-act="share" aria-label="Partager">${ico('share')}</button>

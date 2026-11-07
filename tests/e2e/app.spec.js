@@ -471,3 +471,49 @@ test.describe('accessibility basics', () => {
     expect(unlabeled).toBe(0);
   });
 });
+
+test.describe('brand badges', () => {
+  const lum = (hex) => {
+    const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  const contrast = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+
+  test('every brand colour pair has AA text contrast', async ({ page }) => {
+    await openApp(page);
+    const pairs = await page.evaluate(async () => { const m = await import('./js/brands.js'); return Object.entries(m.BRAND_COLORS); });
+    expect(pairs.length).toBeGreaterThan(10);
+    for (const [brand, [bg, fg]] of pairs) expect(contrast(bg, fg), brand).toBeGreaterThanOrEqual(4.5);
+    expect(contrast('#EAE3D4', '#4A443A')).toBeGreaterThanOrEqual(4.5); // neutral badge
+  });
+
+  test('list rows show the brand name in a badge, "Indépendant" when missing', async ({ page }) => {
+    await openApp(page);
+    await goList(page);
+    const shell = page.locator('#list li', { hasText: '200 av. du Mont-Royal' });
+    await expect(shell.locator('.brand-badge')).toHaveText('Shell');
+    const indep = page.locator('#list li', { hasText: 'Sans Marque Inc.' });
+    await expect(indep.locator('.brand-badge')).toHaveText('Indépendant');
+    await expect(indep.locator('.brand-badge')).toHaveCSS('background-color', 'rgb(234, 227, 212)');
+    await expect(shell.locator('.brand-badge')).toHaveCSS('background-color', 'rgb(255, 213, 0)');
+    expect(await page.locator('#list .brand-badge img, #list .brand-badge svg').count()).toBe(0); // no logo art
+  });
+
+  test('station sheet shows the badge', async ({ page }) => {
+    await openApp(page);
+    await goList(page);
+    await page.locator('#list li', { hasText: '300 boul. René-Lévesque' }).locator('button.li').click();
+    await expect(page.locator('#sheet .brand-badge')).toHaveText('Esso');
+  });
+
+  test('map pins carry a brand stripe and stay readable', async ({ page }) => {
+    await openApp(page);
+    await page.context().grantPermissions(['geolocation']);
+    await page.locator('#btn-locate').click(); // zoom onto the mocked user so pins are individual
+    await page.waitForFunction(() => document.querySelectorAll('#map .pin').length > 0);
+    expect(await page.locator('#map .pin .pin__brand').count()).toBe(await pinCount(page));
+    const box = await page.locator('#map .pin .pin__plate').first().boundingBox();
+    expect(box.height).toBeLessThanOrEqual(40);
+    expect(box.width).toBeLessThanOrEqual(90);
+  });
+});
