@@ -11,4 +11,6 @@ npm test
 
 In a container with a pre-installed Chromium, point at it with `PW_CHROMIUM=/path/to/chrome`.
 
+Language: the suite runs as a French phone (`fr-CA`); `e2e/i18n.spec.js` covers automatic language detection (French, English, fallback, saved choice), the FR/EN switch, and English text in the sheets and features.
+
 Covered: loading, closed stations dropped, fuel toggle, brand / region / max price / search filters, radius on the list and the map pins, favourites, station sheet (calculator, directions, close, focus trap), radar, heat map, price watch, share card, history chart, refresh, offline (feed failure and a real service-worker offline reload), dark mode, touch target size, brand badges (contrast, sheet, pin stripes).

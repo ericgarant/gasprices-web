@@ -8,7 +8,7 @@ A fun, fast, installable mobile web app (PWA) for finding the cheapest gas in Qu
 
 ## Conventions
 
-- French first (UI text in French; English optional later).
+- Bilingual: French (default) and English. UI text lives in `js/i18n.js` (one French and one English dictionary, `t('key', vars)`); static HTML uses `data-i18n` / `data-i18n-attr`. The language comes from the phone's language list (first of fr / en; anything else gives French), and a FR/EN switch in the settings sheet overrides it and is saved on the device (`lp.lang`). Station data from the Régie (names, addresses, regions) is shown as published; gas type labels, level labels and the "Indépendant" brand label are translated. Numbers, money and dates follow the language (fr-CA / en-CA). Any new UI text needs both languages.
 - Mobile first: designed for one-handed use on a phone, then scaled up.
 - Keyless: no API keys, no accounts, no paid services.
 - Plain HTML, CSS and JavaScript (ES modules). No build step, no framework.
@@ -134,6 +134,7 @@ Scheduler status (checked 2026-11-07 20:17 UTC): the workflow has only ever run 
 - 2026-11-07: QA: 39 Playwright end-to-end tests in `tests/` (35 at PR #8, 4 brand-badge tests added in PR #9) (run: `cd tests && npm install && npm test`), plus a fix so the top buttons no longer squash on narrow phones (PR #8).
 - 2026-11-07: Brand badges: coloured avatars, name badges and pin stripes, brand name as text on the brand's colour, no logos (PR #9).
 - 2026-11-07: Eric and a friend (iPhone) are testing on their phones. Model rule set: Sonnet 5.5 by default, Opus 5.5 only for a big gain.
+- 2026-11-07: Bilingual app, French and English (branch `claude/project-thread-jdaja4`): `js/i18n.js`, automatic language from the phone, FR/EN switch in the settings sheet, share card and dates/numbers translated, manifest name and description carry both languages (a manifest cannot change per user), new `tests/e2e/i18n.spec.js`.
 
 ## Open questions
 

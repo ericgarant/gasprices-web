@@ -1,7 +1,8 @@
 // Le Plein — map, list, favourites, filters, station sheet, offline, auto-refresh, plus the fun features:
 // deal radar, savings calculator, best-price moment, heat map, price history, price watch, share card.
-import { FUELS, loadCached, fetchStations, buildStats, levelOf, LEVEL_LABEL } from './data.js';
-import { norm, esc, fmt1, fmtMoney, fmtDist, ageText, priceHTML, splitPrice, distanceKm, initials, debounce, store } from './util.js';
+import { loadCached, fetchStations, buildStats, levelOf, levelLabel } from './data.js';
+import { t, lang, locale, setLang, applyStatic, fuelName, fuelLower, brandLabel, INDEPENDENT } from './i18n.js';
+import { norm, esc, fmt1, fmtMoney, fmtDate, fmtDist, ageText, priceHTML, splitPrice, distanceKm, initials, debounce, store } from './util.js';
 import { confetti, vibrate } from './effects.js';
 import { createHeatLayer } from './heat.js';
 import { loadHistory, stationId, stationSeries, regionSeries, trendOf, trendText, chartSVG } from './history.js';
@@ -65,7 +66,7 @@ applyTheme();
 
 // ---- derived data --------------------------------------------------------------------------
 const stationLevel = (s, fi = state.fuel) => levelOf(stats[fi], s.region, s.prices[fi]);
-const title = (s) => (s.brand !== 'Indépendant' ? s.brand : s.name || s.brand);
+const title = (s) => (s.brand !== INDEPENDENT ? s.brand : s.name || brandLabel(s.brand));
 const distTo = (s) => (state.user ? distanceKm(state.user.lat, state.user.lng, s.lat, s.lng) : null);
 
 function setData(data, { announce = false } = {}) {
@@ -115,14 +116,14 @@ function renderFresh() {
   const d = state.data;
   let html;
   let cls = 'fresh fresh-btn';
-  if (!d) html = `${ico('clock')}Chargement…`;
+  if (!d) html = `${ico('clock')}${t('fresh.loading')}`;
   else {
     const age = Date.now() - d.generatedAt;
-    if (state.offline) { cls += ' fresh--offline'; html = `${ico('offline')}Hors ligne · prix ${ageText(d.generatedAt)}`; }
-    else if (age > STALE_MS) { cls += ' fresh--stale'; html = `${ico('clock')}Prix ${ageText(d.generatedAt)}`; }
+    if (state.offline) { cls += ' fresh--offline'; html = `${ico('offline')}${t('fresh.offline', { age: ageText(d.generatedAt) })}`; }
+    else if (age > STALE_MS) { cls += ' fresh--stale'; html = `${ico('clock')}${t('fresh.stale', { age: ageText(d.generatedAt) })}`; }
     else html = `${ico('clock')}${ageText(d.generatedAt)}`;
   }
-  $$('[data-refresh]').forEach((b) => { b.className = cls; b.innerHTML = html; b.setAttribute('aria-label', `${b.textContent.trim()}. Actualiser`); });
+  $$('[data-refresh]').forEach((b) => { b.className = cls; b.innerHTML = html; b.setAttribute('aria-label', `${b.textContent.trim()}. ${t('fresh.refresh')}`); });
   const f = $('#best .fresh');
   if (f) { f.className = cls.replace(' fresh-btn', ''); f.innerHTML = html; }
 }
@@ -138,10 +139,10 @@ async function refresh({ manual = false } = {}) {
     setData(data, { announce: true });
     renderAll();
     if (first) fitInitial();
-    if (manual) toast('Prix à jour');
+    if (manual) toast(t('toast.updated'));
   } catch (e) {
     state.offline = true;
-    if (manual || !state.data) toast(state.data ? 'Impossible d’actualiser. Prix de la dernière mise à jour.' : 'Impossible de charger les prix. Vérifiez votre connexion.');
+    if (manual || !state.data) toast(t(state.data ? 'toast.refreshFail' : 'toast.loadFail'));
   } finally {
     refreshing = false;
     $('#loading').classList.add('done');
@@ -166,7 +167,7 @@ function pinIcon(s) {
 }
 
 function initMap() {
-  if (typeof L === 'undefined') { toast('La carte n’a pas pu se charger. La liste reste disponible.'); return; }
+  if (typeof L === 'undefined') { toast(t('map.fail')); return; }
   map = L.map('map', { zoomControl: false, attributionControl: true, minZoom: 4, maxZoom: 18, tap: true }).setView([46.6, -72.0], 7);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -180,7 +181,7 @@ function initMap() {
       const n = kids.length;
       return L.divIcon({
         className: 'lp-icon', iconSize: [0, 0], iconAnchor: [0, 0],
-        html: `<div class="cluster" aria-label="${n} stations, à partir de ${fmt1(min)} cents"><div><b>${sup(min)}</b><small>${n < 10 ? n + ' stations' : n}</small></div></div>`,
+        html: `<div class="cluster" aria-label="${t('cluster.aria', { n, p: fmt1(min) })}"><div><b>${sup(min)}</b><small>${n < 10 ? t('cluster.n', { n }) : n}</small></div></div>`,
       });
     },
   });
@@ -210,7 +211,7 @@ function syncPins() {
     let m = markers.get(s.key);
     const p = s.prices[fi];
     if (!m) {
-      m = L.marker([s.lat, s.lng], { icon: pinIcon(s), price: p, title: `${title(s)}, ${fmt1(p)} cents`, riseOnHover: true });
+      m = L.marker([s.lat, s.lng], { icon: pinIcon(s), price: p, title: t('pin.title', { name: title(s), p: fmt1(p) }), riseOnHover: true });
       m.on('click', (e) => { L.DomEvent.stopPropagation(e); openStation(s.key, { fromMap: true }); });
       m._key = s.key;
       markers.set(s.key, m);
@@ -240,34 +241,34 @@ function renderBest() {
   }
   if (!best) {
     el.hidden = false; el.dataset.key = '';
-    el.innerHTML = `<div class="card__row"><span class="t-overline">Aucune station dans cette zone</span></div><div class="card__meta">Déplacez la carte ou ajustez les filtres.</div>`;
+    el.innerHTML = `<div class="card__row"><span class="t-overline">${t('best.none')}</span></div><div class="card__meta">${t('best.noneHint')}</div>`;
     return;
   }
   const p = best.prices[state.fuel];
   const d = distTo(best);
   el.hidden = false; el.dataset.key = best.key;
   el.innerHTML = `
-    <div class="card__row"><span class="t-overline">Le moins cher ici</span><span class="fresh"></span></div>
+    <div class="card__row"><span class="t-overline">${t('best.title')}</span><span class="fresh"></span></div>
     <div class="card__row">
       <span class="avatar avatar--brand" style="--bb:${brandColors(best.brand)[0]};--bb-on:${brandColors(best.brand)[1]}" aria-hidden="true">${esc(initials(best.brand))}</span>
       <div style="flex:1;min-width:0"><div class="card__title">${esc(title(best))}</div>
       <div class="card__meta">${brandBadge(best.brand, 'brand-badge--sm')} ${d != null ? fmtDist(d) + ' · ' : ''}${esc(best.addr)}</div></div>
       ${priceHTML(p, 'lg', stationLevel(best), { roll: state.roll })}
     </div>`;
-  el.setAttribute('aria-label', `Le moins cher dans cette zone : ${title(best)}, ${fmt1(p)} cents. Ouvrir la fiche`);
+  el.setAttribute('aria-label', t('best.aria', { name: title(best), p: fmt1(p) }));
   renderFresh();
 }
 
 function showUser() {
   if (!map || !state.user) return;
-  const icon = L.divIcon({ className: 'lp-icon', iconSize: [0, 0], iconAnchor: [0, 0], html: '<div class="me" aria-label="Votre position"></div>' });
+  const icon = L.divIcon({ className: 'lp-icon', iconSize: [0, 0], iconAnchor: [0, 0], html: `<div class="me" aria-label="${t('me.aria')}"></div>` });
   if (meMarker) meMarker.setLatLng([state.user.lat, state.user.lng]);
   else meMarker = L.marker([state.user.lat, state.user.lng], { icon, interactive: false, keyboard: false, zIndexOffset: 100000 }).addTo(map);
 }
 
 // ---- location ------------------------------------------------------------------------------
 function locate({ fly = true, quiet = false, onDone } = {}) {
-  if (!navigator.geolocation) { if (!quiet) toast('La géolocalisation n’est pas disponible sur cet appareil.'); return; }
+  if (!navigator.geolocation) { if (!quiet) toast(t('loc.unavailable')); return; }
   const btn = $('#btn-locate');
   btn.setAttribute('aria-busy', 'true');
   navigator.geolocation.getCurrentPosition((pos) => {
@@ -280,7 +281,7 @@ function locate({ fly = true, quiet = false, onDone } = {}) {
     if (onDone) onDone();
   }, (err) => {
     btn.removeAttribute('aria-busy');
-    if (!quiet) toast(err.code === 1 ? 'Position refusée. Autorisez-la dans les réglages du navigateur.' : 'Position introuvable pour le moment.');
+    if (!quiet) toast(t(err.code === 1 ? 'loc.denied' : 'loc.notfound'));
   }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 });
 }
 
@@ -295,8 +296,8 @@ function itemHTML(s, { favMark = false } = {}) {
     <span class="avatar avatar--brand" style="--bb:${brandColors(s.brand)[0]};--bb-on:${brandColors(s.brand)[1]}" aria-hidden="true">${esc(initials(s.brand))}</span>
     <span class="li__text"><span class="li__primary" style="display:block">${esc(title(s))}</span>
       <span class="li__secondary clamp" style="display:block">${brandBadge(s.brand, 'brand-badge--sm')} ${d != null ? fmtDist(d) + ' · ' : ''}${esc(city)}</span></span>
-    <span class="li__trail">${priceHTML(p, 'md', lvl, { roll: state.roll })}${lvl ? `<span class="level level--${lvl}">${LEVEL_LABEL[lvl]}</span>` : ''}</span>
-    ${isFav && !favMark ? `<span class="li__lead fav" title="Favori">${ico('heart')}<span class="sr-only">Favori</span></span>` : ''}
+    <span class="li__trail">${priceHTML(p, 'md', lvl, { roll: state.roll })}${lvl ? `<span class="level level--${lvl}">${levelLabel(lvl)}</span>` : ''}</span>
+    ${isFav && !favMark ? `<span class="li__lead fav" title="${t('fav.label')}">${ico('heart')}<span class="sr-only">${t('fav.label')}</span></span>` : ''}
   </button></li>`;
 }
 
@@ -305,19 +306,19 @@ function renderList() {
   const hint = $('#list-hint');
   hint.innerHTML = '';
   if (!state.user) {
-    hint.innerHTML = `<div class="card card--filled hint-card"><div class="card__row">${ico('locate')}<div style="flex:1;min-width:0"><div class="card__title">Près de vous</div><div class="card__meta">Activez la position pour trier par distance. Sinon, voici les moins chers du Québec.</div></div><button class="btn btn--contained btn--sm" data-act="locate">Activer</button></div></div>`;
+    hint.innerHTML = `<div class="card card--filled hint-card"><div class="card__row">${ico('locate')}<div style="flex:1;min-width:0"><div class="card__title">${t('list.nearTitle')}</div><div class="card__meta">${t('list.nearBody')}</div></div><button class="btn btn--contained btn--sm" data-act="locate">${t('list.enable')}</button></div></div>`;
   }
   $('#sort [data-sort="dist"]').disabled = !state.user;
   $$('#sort [data-sort]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.sort === (state.user ? state.sort : 'price'))));
   if (!state.data) { ul.innerHTML = ''; return; }
   if (!listed.length) {
-    ul.innerHTML = `<li class="empty">${ico('search')}<div class="t-subtitle1">Aucune station trouvée</div><div class="t-body2">${state.user && state.radius ? `Aucune dans ${state.radius} km avec ces filtres. ` : ''}Essayez d’élargir la recherche ou de réinitialiser les filtres.</div><button class="btn btn--outlined" data-act="open-filters">Filtres</button></li>`;
+    ul.innerHTML = `<li class="empty">${ico('search')}<div class="t-subtitle1">${t('list.emptyTitle')}</div><div class="t-body2">${state.user && state.radius ? t('list.emptyRadius', { r: state.radius }) : ''}${t('list.emptyHint')}</div><button class="btn btn--outlined" data-act="open-filters">${t('filters.btn')}</button></li>`;
     return;
   }
   const n = Math.min(state.shown, listed.length);
   let html = '';
   for (let i = 0; i < n; i++) html += itemHTML(listed[i]);
-  if (n < listed.length) html += `<li class="more"><button class="btn btn--outlined" data-act="more">Afficher plus (${listed.length - n})</button></li>`;
+  if (n < listed.length) html += `<li class="more"><button class="btn btn--outlined" data-act="more">${t('list.more', { n: listed.length - n })}</button></li>`;
   ul.innerHTML = html;
 }
 
@@ -325,13 +326,13 @@ function renderFavs() {
   const ul = $('#favs');
   const items = [...state.favs].map((k) => byKey.get(k)).filter(Boolean);
   if (!state.favs.size) {
-    ul.innerHTML = `<li class="empty">${ico('heart')}<div class="t-subtitle1">Aucun favori pour l’instant</div><div class="t-body2">Touchez le cœur dans la fiche d’une station pour la retrouver ici, avec son prix à jour.</div></li>`;
+    ul.innerHTML = `<li class="empty">${ico('heart')}<div class="t-subtitle1">${t('favs.emptyTitle')}</div><div class="t-body2">${t('favs.emptyBody')}</div></li>`;
     return;
   }
   if (!state.data) { ul.innerHTML = ''; return; }
   const fi = state.fuel;
   items.sort((a, b) => (a.prices[fi] ?? 1e9) - (b.prices[fi] ?? 1e9));
-  ul.innerHTML = items.map((s) => favItem(s)).join('') + (items.length < state.favs.size ? `<li class="empty"><div class="t-body2">${state.favs.size - items.length} favori(s) absent(s) des données actuelles (station fermée ?).</div></li>` : '');
+  ul.innerHTML = items.map((s) => favItem(s)).join('') + (items.length < state.favs.size ? `<li class="empty"><div class="t-body2">${t('favs.missing', { n: state.favs.size - items.length })}</div></li>` : '');
 }
 
 function favItem(s) {
@@ -342,7 +343,7 @@ function favItem(s) {
     <span class="avatar avatar--brand" style="--bb:${brandColors(s.brand)[0]};--bb-on:${brandColors(s.brand)[1]}" aria-hidden="true">${esc(initials(s.brand))}</span>
     <span class="li__text"><span class="li__primary" style="display:block">${esc(title(s))}</span>
     <span class="li__secondary clamp" style="display:block">${brandBadge(s.brand, 'brand-badge--sm')} ${d != null ? fmtDist(d) + ' · ' : ''}${esc(s.addr)}</span>${watchLine(s)}</span>
-    <span class="li__trail">${priceHTML(p, 'md', lvl, { roll: state.roll })}${lvl ? `<span class="level level--${lvl}">${LEVEL_LABEL[lvl]}</span>` : `<span class="t-caption">${FUELS[state.fuel]} n/d</span>`}</span>
+    <span class="li__trail">${priceHTML(p, 'md', lvl, { roll: state.roll })}${lvl ? `<span class="level level--${lvl}">${levelLabel(lvl)}</span>` : `<span class="t-caption">${t('fuel.na', { fuel: fuelName(state.fuel) })}</span>`}</span>
   </button></li>`;
 }
 
@@ -393,12 +394,12 @@ function openStation(key, { fromMap = false } = {}) {
   const lvl = stationLevel(s);
   const d = distTo(s);
   const fav = state.favs.has(key);
-  const rows = FUELS.map((f, i) => {
+  const rows = [0, 1, 2].map((i) => {
     const pp = s.prices[i];
     const l = levelOf(stats[i], s.region, pp);
     const cur = i === fi;
-    const sub = cur && pp != null && stats[i] ? (() => { const a = (stats[i].regions.get(s.region) || stats[i].all).avg - pp; return `<small>${Math.abs(a) < 0.05 ? 'Dans la moyenne' : `${fmt1(Math.abs(a))}¢ ${a > 0 ? 'sous' : 'au-dessus de'} la moyenne de la région`}</small>`; })() : '';
-    return `<div class="sign__row${cur ? ' is-current' : ''}"><div class="sign__fuel">${f}${sub}</div>${priceHTML(pp, cur ? 'lg' : 'md', cur ? l : null)}</div>`;
+    const sub = cur && pp != null && stats[i] ? (() => { const a = (stats[i].regions.get(s.region) || stats[i].all).avg - pp; return `<small>${Math.abs(a) < 0.05 ? t('avg.same') : t(a > 0 ? 'avg.below' : 'avg.above', { d: fmt1(Math.abs(a)) })}</small>`; })() : '';
+    return `<div class="sign__row${cur ? ' is-current' : ''}"><div class="sign__fuel">${fuelName(i)}${sub}</div>${priceHTML(pp, cur ? 'lg' : 'md', cur ? l : null)}</div>`;
   }).join('');
   const bestNear = isBestNearby(s);
   openSheet(`
@@ -410,25 +411,25 @@ function openStation(key, { fromMap = false } = {}) {
           <div class="card__meta">${brandBadge(s.brand)} ${esc(s.addr)}${d != null ? ' · ' + fmtDist(d) : ''}</div></div>
         </div>
         <div class="stack stack--row">
-          <button class="iconbtn" data-act="share" aria-label="Partager">${ico('share')}</button>
-          <button class="iconbtn" data-act="fav" aria-pressed="${fav}" aria-label="${fav ? 'Retirer des favoris' : 'Ajouter aux favoris'}">${ico('heart')}</button>
-          <button class="iconbtn" data-act="close" aria-label="Fermer">${ico('close')}</button>
+          <button class="iconbtn" data-act="share" aria-label="${t('share.aria')}">${ico('share')}</button>
+          <button class="iconbtn" data-act="fav" aria-pressed="${fav}" aria-label="${t(fav ? 'fav.remove' : 'fav.add')}">${ico('heart')}</button>
+          <button class="iconbtn" data-act="close" aria-label="${t('close')}">${ico('close')}</button>
         </div>
       </div>
       <div class="card__row" style="justify-content:space-between">
-        <span class="stack stack--row" style="--gap:var(--sp-8);flex-wrap:wrap">${lvl ? `<span class="level level--${lvl}">${LEVEL_LABEL[lvl]}</span>` : ''}${bestNear ? `<span class="level level--cheap best-tag">${ico('star')}Meilleur prix près de vous</span>` : ''}</span>
+        <span class="stack stack--row" style="--gap:var(--sp-8);flex-wrap:wrap">${lvl ? `<span class="level level--${lvl}">${levelLabel(lvl)}</span>` : ''}${bestNear ? `<span class="level level--cheap best-tag">${ico('star')}${t('best.tag')}</span>` : ''}</span>
         <button class="fresh fresh-btn" data-refresh type="button"></button>
       </div>
-      <div class="sign"><div class="sign__head"><span>Prix affichés</span><span>¢ / litre</span></div>${rows}</div>
+      <div class="sign"><div class="sign__head"><span>${t('sign.head')}</span><span>${t('sign.unit')}</span></div>${rows}</div>
       <div id="calc-slot"></div>
       <div id="watch-slot"></div>
       <div id="hist-slot"></div>
-      <div class="accordion"><details><summary>${ico('info')}Détails de la station${ico('chevron-down')}</summary>
-        <div class="acc-body">Bannière : ${esc(s.brand)}<br>Exploitant : ${esc(s.name)}<br>Région : ${esc(s.region || '—')}<br>Adresse : ${esc(s.addr)}</div></details></div>
+      <div class="accordion"><details><summary>${ico('info')}${t('details.title')}${ico('chevron-down')}</summary>
+        <div class="acc-body">${t('details.brand')}${esc(brandLabel(s.brand))}<br>${t('details.operator')}${esc(s.name)}<br>${t('details.region')}${esc(s.region || '—')}<br>${t('details.addr')}${esc(s.addr)}</div></details></div>
     </div>
     <div class="sheet__cta">
-      <a class="btn btn--contained btn--lg btn--block" href="${directionsURL(s)}" target="_blank" rel="noopener">${ico('directions')}Itinéraire</a>
-      <div class="t-caption">Ouvre ${isApple ? 'Apple Plans' : 'Google Maps'} · Données : Régie de l’énergie du Québec</div>
+      <a class="btn btn--contained btn--lg btn--block" href="${directionsURL(s)}" target="_blank" rel="noopener">${ico('directions')}${t('directions')}</a>
+      <div class="t-caption">${t('directions.opens', { app: t(isApple ? 'app.apple' : 'app.google') })}</div>
     </div>`, { label: title(s) });
   renderFresh();
   renderCalc(s);
@@ -453,10 +454,10 @@ function toggleFav(key) {
   if (btn) {
     const on = state.favs.has(key);
     btn.setAttribute('aria-pressed', String(on));
-    btn.setAttribute('aria-label', on ? 'Retirer des favoris' : 'Ajouter aux favoris');
+    btn.setAttribute('aria-label', t(on ? 'fav.remove' : 'fav.add'));
   }
   if (!state.favs.has(key) && state.watch[key]) { delete state.watch[key]; store.set('watch', state.watch); }
-  toast(state.favs.has(key) ? 'Ajouté aux favoris' : 'Retiré des favoris');
+  toast(t(state.favs.has(key) ? 'fav.added' : 'fav.removed'));
   const s = byKey.get(key);
   if (s && state.selected === key) renderWatchSlot(s);
   checkWatches(false);
@@ -493,8 +494,8 @@ function renderCalc(s) {
   if (!slot || p == null) return;
   slot.innerHTML = `<div class="card card--outlined calc">
     <div class="card__row" style="justify-content:space-between;align-items:center">
-      <div class="t-overline">Calculateur d’économies</div>
-      <label class="calc__lit"><span class="sr-only">Litres</span><input id="calc-l" type="number" inputmode="decimal" min="1" max="500" step="1" value="${state.litres}" aria-label="Litres à mettre"><span aria-hidden="true">L</span></label>
+      <div class="t-overline">${t('calc.title')}</div>
+      <label class="calc__lit"><span class="sr-only">${t('calc.litres')}</span><input id="calc-l" type="number" inputmode="decimal" min="1" max="500" step="1" value="${state.litres}" aria-label="${t('calc.litresAria')}"><span aria-hidden="true">L</span></label>
     </div>
     <div id="calc-out" class="stack" style="--gap:var(--sp-12);margin-top:var(--sp-12)" aria-live="polite"></div></div>`;
   updateCalc(s.key);
@@ -503,9 +504,9 @@ function renderCalc(s) {
 function calcRow(label, sub, delta, L) {
   const amt = delta * L / 100;
   const cls = Math.abs(amt) < 0.005 ? 'same' : amt > 0 ? 'cheap' : 'pricey';
-  const word = cls === 'same' ? 'Même prix' : amt > 0 ? 'Économie' : 'Surcoût';
+  const word = t(cls === 'same' ? 'calc.same' : amt > 0 ? 'calc.save' : 'calc.extra');
   return `<div class="calc__row"><div class="calc__what"><span class="t-subtitle2">${label}</span><small class="t-caption">${sub}</small></div>
-    <div class="calc__amt calc__amt--${cls}"><small>${word}</small><b class="tnum">${cls === 'same' ? '0,00 $' : fmtMoney(Math.abs(amt))}</b></div></div>`;
+    <div class="calc__amt calc__amt--${cls}"><small>${word}</small><b class="tnum">${cls === 'same' ? fmtMoney(0) : fmtMoney(Math.abs(amt))}</b></div></div>`;
 }
 
 function updateCalc(key) {
@@ -516,11 +517,11 @@ function updateCalc(key) {
   const ref = state.user ? nearestTo(state.user.lat, state.user.lng, fi) : nearestTo(s.lat, s.lng, fi, s.key);
   if (ref && ref.s.key !== s.key) {
     const rp = ref.s.prices[fi];
-    rows.push(calcRow(`Ici plutôt qu’à ${esc(title(ref.s))}`, `${state.user ? 'La plus proche de vous' : 'La plus proche d’ici'} · ${fmtDist(ref.d)} · ${fmt1(rp)}¢`, rp - p, L));
-  } else if (ref) rows.push(`<div class="t-body2">C’est la station la plus proche de vous.</div>`);
+    rows.push(calcRow(t('calc.vs', { name: esc(title(ref.s)) }), `${t(state.user ? 'calc.nearestYou' : 'calc.nearestHere')} · ${fmtDist(ref.d)} · ${fmt1(rp)}¢`, rp - p, L));
+  } else if (ref) rows.push(`<div class="t-body2">${t('calc.isNearest')}</div>`);
   const st = stats[fi].regions.get(s.region) || stats[fi].all;
-  if (st) rows.push(calcRow(`Ici plutôt qu’au prix moyen`, `${s.region ? 'Moyenne de la région' : 'Moyenne du Québec'} · ${fmt1(st.avg)}¢`, st.avg - p, L));
-  out.innerHTML = `<div class="t-body2">Plein de ${L} L de ${FUELS[fi].toLowerCase()} à ${fmt1(p)}¢/L : ${fmtMoney(p * L / 100)}</div>${rows.join('')}`;
+  if (st) rows.push(calcRow(t('calc.vsAvg'), `${t(s.region ? 'calc.avgRegion' : 'calc.avgQc')} · ${fmt1(st.avg)}¢`, st.avg - p, L));
+  out.innerHTML = `<div class="t-body2">${t('calc.fill', { L, fuelL: fuelLower(fi), p: fmt1(p), total: fmtMoney(p * L / 100) })}</div>${rows.join('')}`;
 }
 
 // ---- fun: price watch (target price on a favourite) ----------------------------------------
@@ -543,7 +544,7 @@ function checkWatches(announce) {
   fresh.forEach((h) => announced.add(`${h.s.key}|${h.w.fuel}|${h.p}`));
   if (!fresh.length) return;
   const h = fresh[0];
-  toast(fresh.length === 1 ? `Prix cible atteint : ${title(h.s)}, ${fmt1(h.p)}¢ (${FUELS[h.w.fuel]})` : `${fresh.length} favoris sont sous votre prix cible`);
+  toast(fresh.length === 1 ? t('watch.hit', { name: title(h.s), p: fmt1(h.p), fuel: fuelName(h.w.fuel) }) : t('watch.hits', { n: fresh.length }));
   vibrate(30);
 }
 
@@ -552,40 +553,40 @@ function watchLine(s) {
   if (!w) return '';
   const p = s.prices[w.fuel];
   const hit = p != null && p <= w.price;
-  return `<span class="li__secondary watch-line${hit ? ' is-hit' : ''}" style="display:block">${ico('bell')}Cible ${fmt1(w.price)}¢ · ${FUELS[w.fuel]}${hit ? ` · atteinte (${fmt1(p)}¢)` : p != null ? ` · actuel ${fmt1(p)}¢` : ''}</span>`;
+  return `<span class="li__secondary watch-line${hit ? ' is-hit' : ''}" style="display:block">${ico('bell')}${t('watch.line', { t: fmt1(w.price), fuel: fuelName(w.fuel) })}${hit ? t('watch.lineHit', { p: fmt1(p) }) : p != null ? t('watch.lineNow', { p: fmt1(p) }) : ''}</span>`;
 }
 
 function renderWatchSlot(s) {
   const slot = $('#watch-slot');
   if (!slot) return;
-  if (!state.favs.has(s.key)) { slot.innerHTML = `<div class="t-caption watch-hint">${ico('bell')}Ajoutez cette station aux favoris pour fixer un prix cible.</div>`; return; }
+  if (!state.favs.has(s.key)) { slot.innerHTML = `<div class="t-caption watch-hint">${ico('bell')}${t('watch.hint')}</div>`; return; }
   const w = state.watch[s.key];
   const p = s.prices[state.fuel];
   if (w) {
     const cur = s.prices[w.fuel];
     const hit = cur != null && cur <= w.price;
     slot.innerHTML = `<div class="card card--outlined"><div class="card__row" style="justify-content:space-between;align-items:center">
-      <div><div class="t-overline">Alerte de prix</div><div class="card__meta">${hit ? `<b class="watch-ok">Cible atteinte</b> : ${fmt1(cur)}¢` : `Je vous le dirai sous ${fmt1(w.price)}¢`} · ${FUELS[w.fuel]}</div></div>
-      <button class="btn btn--text btn--sm" data-act="watch-clear">Retirer</button></div></div>`;
+      <div><div class="t-overline">${t('watch.title')}</div><div class="card__meta">${hit ? `<b class="watch-ok">${t('watch.ok')}</b>${lang === 'fr' ? ' ' : ''}: ${fmt1(cur)}¢` : t('watch.until', { p: fmt1(w.price) })} · ${fuelName(w.fuel)}</div></div>
+      <button class="btn btn--text btn--sm" data-act="watch-clear">${t('watch.remove')}</button></div></div>`;
     return;
   }
   const sug = p != null ? (Math.floor(p) - 2).toFixed(1) : '';
-  slot.innerHTML = `<div class="card card--outlined"><div class="t-overline">Alerte de prix</div>
-    <div class="card__meta" style="margin:var(--sp-4) 0 var(--sp-12)">Vérifiée à chaque ouverture de l’app et à chaque mise à jour (${FUELS[state.fuel]}).</div>
-    <div class="card__row"><div class="field field--outlined" style="flex:1"><label class="field__label" for="w-price">Prix cible (¢/L)</label><div class="field__box"><input id="w-price" type="number" inputmode="decimal" min="1" step="0.1" placeholder="${sug}"></div></div>
-    <button class="btn btn--contained" data-act="watch-save">Activer</button></div></div>`;
+  slot.innerHTML = `<div class="card card--outlined"><div class="t-overline">${t('watch.title')}</div>
+    <div class="card__meta" style="margin:var(--sp-4) 0 var(--sp-12)">${t('watch.desc', { fuel: fuelName(state.fuel) })}</div>
+    <div class="card__row"><div class="field field--outlined" style="flex:1"><label class="field__label" for="w-price">${t('watch.label')}</label><div class="field__box"><input id="w-price" type="number" inputmode="decimal" min="1" step="0.1" placeholder="${sug}"></div></div>
+    <button class="btn btn--contained" data-act="watch-save">${t('watch.activate')}</button></div></div>`;
 }
 
 function saveWatch(key) {
   const inp = $('#w-price');
   const v = parseFloat(String(inp && inp.value).replace(',', '.'));
-  if (!Number.isFinite(v) || v <= 0) { toast('Entrez un prix cible, par exemple 165,9'); if (inp) inp.focus(); return; }
+  if (!Number.isFinite(v) || v <= 0) { toast(t('watch.enter', { ex: fmt1(165.9) })); if (inp) inp.focus(); return; }
   state.watch[key] = { fuel: state.fuel, price: Math.round(v * 10) / 10 };
   store.set('watch', state.watch);
   const s = byKey.get(key);
   renderWatchSlot(s);
   checkWatches(true);
-  if (!watchHits().some((h) => h.s.key === key)) toast(`Alerte activée sous ${fmt1(state.watch[key].price)}¢`);
+  if (!watchHits().some((h) => h.s.key === key)) toast(t('watch.on', { p: fmt1(state.watch[key].price) }));
   renderFavs();
 }
 
@@ -595,7 +596,7 @@ function clearWatch(key) {
   renderWatchSlot(byKey.get(key));
   checkWatches(false);
   renderFavs();
-  toast('Alerte retirée');
+  toast(t('watch.cleared'));
 }
 
 // ---- fun: price history and trends ---------------------------------------------------------
@@ -603,26 +604,26 @@ async function renderHistory(s) {
   const slot = $('#hist-slot');
   if (!slot) return;
   const fi = state.fuel;
-  slot.innerHTML = `<div class="card card--outlined hist"><div class="t-overline">Historique des prix</div><div class="t-body2" style="margin-top:var(--sp-8)">Chargement…</div></div>`;
+  slot.innerHTML = `<div class="card card--outlined hist"><div class="t-overline">${t('hist.title')}</div><div class="t-body2" style="margin-top:var(--sp-8)">${t('hist.loading')}</div></div>`;
   let html;
   try {
     const [hist, id] = await Promise.all([loadHistory(), stationId(s.key)]);
     const { pts, first } = stationSeries(hist, id, fi, s.prices[fi]);
     const tr = trendOf(pts);
     const rtr = trendOf(regionSeries(hist, s.region, fi));
-    const since = first ? new Intl.DateTimeFormat('fr-CA', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }).format(first) : null;
+    const since = first ? fmtDate(first, { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) : null;
     if (pts.length >= 2) {
       html = `<div class="hist__trend hist__trend--${tr.dir}">${ico(tr.dir === 'down' ? 'trend-down' : tr.dir === 'up' ? 'trend-up' : 'minus')}<span class="t-subtitle2">${trendText(tr)}</span></div>
         ${chartSVG(pts)}`;
     } else {
-      html = `<div class="t-body2">${pts.length ? `Le prix n’a pas bougé depuis le début des relevés${since ? ` (${since})` : ''}.` : 'Pas encore de relevés pour cette station.'} Les prix sont enregistrés chaque heure : le graphique se remplit avec le temps.</div>`;
+      html = `<div class="t-body2">${pts.length ? `${t('hist.flat')}${since ? ` (${since})` : ''}.` : t('hist.none')}${t('hist.fill')}</div>`;
     }
-    if (rtr && s.region) html += `<div class="t-caption" style="margin-top:var(--sp-8)">Moyenne ${esc(s.region)} : ${trendText(rtr).toLowerCase()}.</div>`;
+    if (rtr && s.region) html += `<div class="t-caption" style="margin-top:var(--sp-8)">${t('hist.region', { region: esc(s.region), trend: trendText(rtr).toLowerCase() })}</div>`;
   } catch (e) {
-    html = `<div class="t-body2">Historique indisponible pour le moment${state.offline ? ' (hors ligne)' : ''}.</div>`;
+    html = `<div class="t-body2">${t('hist.unavail')}${state.offline ? t('hist.offline') : ''}.</div>`;
   }
   const cur = $('#hist-slot');
-  if (cur && state.sheet && state.sheet.key === s.key) cur.innerHTML = `<div class="card card--outlined hist"><div class="t-overline">Historique des prix</div>${html}</div>`;
+  if (cur && state.sheet && state.sheet.key === s.key) cur.innerHTML = `<div class="card card--outlined hist"><div class="t-overline">${t('hist.title')}</div>${html}</div>`;
 }
 
 // ---- fun: heat map -------------------------------------------------------------------------
@@ -655,7 +656,7 @@ function setHeat(on) {
   if (on) { map.removeLayer(cluster); map.addLayer(heatLayer); } else { map.removeLayer(heatLayer); map.addLayer(cluster); }
   $('#btn-heat').setAttribute('aria-pressed', String(on));
   $('#heat-legend').hidden = !on;
-  if (on) toast('Touchez la carte près d’une station pour voir sa fiche');
+  if (on) toast(t('heat.toast'));
 }
 
 // ---- fun: deal radar -----------------------------------------------------------------------
@@ -672,12 +673,12 @@ function bearing(a, b) {
 }
 
 function openRadar() {
-  if (!state.data) { toast('Les prix se chargent encore…'); return; }
-  if (!state.user) { toast('Recherche de votre position…'); locate({ onDone: openRadar }); return; }
+  if (!state.data) { toast(t('radar.loading')); return; }
+  if (!state.user) { toast(t('loc.searching')); locate({ onDone: openRadar }); return; }
   const fi = state.fuel;
   let R = NEAR_KM, pool = [];
   for (const r of [NEAR_KM, 25]) { R = r; pool = visible.filter((s) => distTo(s) <= r); if (pool.length >= 3) break; }
-  if (!pool.length) { toast('Aucune station à moins de 25 km avec ces filtres.'); return; }
+  if (!pool.length) { toast(t('radar.none')); return; }
   pool.sort((a, b) => a.prices[fi] - b.prices[fi] || distTo(a) - distTo(b));
   const top = pool.slice(0, 5);
   clearRadar();
@@ -697,12 +698,12 @@ function openRadar() {
   const best = top[0].prices[fi], avg = pool.reduce((a, s) => a + s.prices[fi], 0) / pool.length;
   openSheet(`
     <div class="sheet__scroll stack" style="--gap:var(--sp-16)">
-      <div class="sheet__bar"><h2 class="t-h3" id="sheet-title" tabindex="-1" data-focus>Radar des aubaines</h2><button class="iconbtn" data-act="close" aria-label="Fermer">${ico('close')}</button></div>
-      <div class="radar-wrap"><div class="radar radar--lg" role="img" aria-label="Radar : les ${top.length} stations les moins chères dans un rayon de ${R} km"><span class="radar__me"></span>${dots}<span class="radar__range">${R} km</span></div></div>
-      <p class="t-body2" style="text-align:center">${top.length} moins chers dans ${R} km · ${FUELS[fi]}${avg - best >= 0.05 ? ` · jusqu’à ${fmt1(avg - best)}¢ sous la moyenne des alentours` : ''}</p>
+      <div class="sheet__bar"><h2 class="t-h3" id="sheet-title" tabindex="-1" data-focus>${t('radar.title')}</h2><button class="iconbtn" data-act="close" aria-label="${t('close')}">${ico('close')}</button></div>
+      <div class="radar-wrap"><div class="radar radar--lg" role="img" aria-label="${t('radar.aria', { n: top.length, r: R })}"><span class="radar__me"></span>${dots}<span class="radar__range">${R} km</span></div></div>
+      <p class="t-body2" style="text-align:center">${t('radar.summary', { n: top.length, r: R, fuel: fuelName(fi) })}${avg - best >= 0.05 ? t('radar.under', { d: fmt1(avg - best) }) : ''}</p>
       <ul class="list radar__list">${rows}</ul>
     </div>
-    <div class="sheet__cta"><button class="btn btn--contained btn--lg btn--block" data-act="radar-map">${ico('map')}Voir sur la carte</button></div>`, { label: 'Radar des aubaines' });
+    <div class="sheet__cta"><button class="btn btn--contained btn--lg btn--block" data-act="radar-map">${ico('map')}${t('radar.map')}</button></div>`, { label: t('radar.title') });
 }
 
 function radarOnMap() {
@@ -722,25 +723,26 @@ let shareBlob = null, shareUrl = null;
 async function shareStation(key) {
   const s = byKey.get(key);
   const fi = state.fuel, p = s.prices[fi];
-  if (p == null) { toast('Pas de prix à partager pour ce carburant'); return; }
+  if (p == null) { toast(t('share.noPrice')); return; }
   const place = cityOf(s) || s.region || 'Québec';
+  const fv = { fuel: fuelName(fi), fuelL: fuelLower(fi) };
   const peers = state.data.stations.filter((o) => o.prices[fi] != null && cityOf(o) === place);
   const cheapest = peers.length >= 2 && peers.every((o) => o.prices[fi] >= p);
-  const text = `${cheapest ? `${FUELS[fi]} le moins cher à ${place} en ce moment` : `${FUELS[fi]} à ${place}`} : ${fmt1(p)}¢/L chez ${title(s)} (Le Plein)`;
+  const text = t(cheapest ? 'share.textCheapest' : 'share.text', { ...fv, place, p: fmt1(p), name: title(s) });
   state.sheet = { type: 'share', key, text };
   openSheet(`
     <div class="sheet__scroll stack" style="--gap:var(--sp-16)">
-      <div class="sheet__bar"><h2 class="t-h3" id="sheet-title" tabindex="-1" data-focus>Partager</h2><button class="iconbtn" data-act="back-station" aria-label="Retour à la station">${ico('back')}</button></div>
-      <div id="share-prev" class="share-prev"><div class="t-body2">Création de l’image…</div></div>
+      <div class="sheet__bar"><h2 class="t-h3" id="sheet-title" tabindex="-1" data-focus>${t('share.title')}</h2><button class="iconbtn" data-act="back-station" aria-label="${t('back.station')}">${ico('back')}</button></div>
+      <div id="share-prev" class="share-prev"><div class="t-body2">${t('share.creating')}</div></div>
     </div>
     <div class="sheet__cta stack" style="--gap:var(--sp-8)">
-      <button class="btn btn--contained btn--lg btn--block" data-act="share-go" disabled>${ico('share')}Partager l’image</button>
-      <div class="stack stack--row" style="--gap:var(--sp-8)"><button class="btn btn--outlined" style="flex:1" data-act="share-save" disabled>Enregistrer</button><button class="btn btn--outlined" style="flex:1" data-act="share-copy">${ico('copy')}Copier le texte</button></div>
-    </div>`, { label: 'Partager' });
+      <button class="btn btn--contained btn--lg btn--block" data-act="share-go" disabled>${ico('share')}${t('share.go')}</button>
+      <div class="stack stack--row" style="--gap:var(--sp-8)"><button class="btn btn--outlined" style="flex:1" data-act="share-save" disabled>${t('share.save')}</button><button class="btn btn--outlined" style="flex:1" data-act="share-copy">${ico('copy')}${t('share.copy')}</button></div>
+    </div>`, { label: t('share.title') });
   try {
     const blob = await renderShareCard({
-      headline: cheapest ? `${FUELS[fi]} le moins cher à` : `${FUELS[fi]} à`, place, price: p, fuel: FUELS[fi], name: title(s), addr: s.addr, level: stationLevel(s),
-      when: `Relevé du ${new Intl.DateTimeFormat('fr-CA', { dateStyle: 'long', timeStyle: 'short' }).format(state.data.generatedAt)}`,
+      headline: t(cheapest ? 'share.headCheapest' : 'share.head', fv), place, price: p, fuel: fuelName(fi), name: title(s), addr: s.addr, level: stationLevel(s),
+      when: t('share.when', { date: fmtDate(state.data.generatedAt, { dateStyle: 'long', timeStyle: 'short' }) }),
     });
     if (!state.sheet || state.sheet.type !== 'share' || state.sheet.key !== key) return;
     if (shareUrl) URL.revokeObjectURL(shareUrl);
@@ -749,7 +751,7 @@ async function shareStation(key) {
     $$('#sheet [data-act="share-go"], #sheet [data-act="share-save"]').forEach((b) => (b.disabled = false));
   } catch (e) {
     const pv = $('#share-prev');
-    if (pv) pv.innerHTML = `<div class="t-body2">L’image n’a pas pu être créée. Vous pouvez quand même copier le texte.</div>`;
+    if (pv) pv.innerHTML = `<div class="t-body2">${t('share.imgFail')}</div>`;
   }
 }
 
@@ -761,7 +763,7 @@ async function shareGo() {
     if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text, title: 'Le Plein' }); return; }
     if (navigator.share) { await navigator.share({ title: 'Le Plein', text, url }); return; }
     shareSave();
-  } catch (e) { if (e && e.name !== 'AbortError') toast('Partage impossible'); }
+  } catch (e) { if (e && e.name !== 'AbortError') toast(t('share.fail')); }
 }
 
 function shareSave() {
@@ -769,53 +771,55 @@ function shareSave() {
   const a = document.createElement('a');
   a.href = shareUrl; a.download = 'le-plein.png';
   document.body.appendChild(a); a.click(); a.remove();
-  toast('Image enregistrée');
+  toast(t('share.saved'));
 }
 
 async function shareCopy() {
   const text = state.sheet && state.sheet.text;
   if (!text) return;
-  try { await navigator.clipboard.writeText(`${text} ${location.href.split('#')[0]}`); toast('Texte copié'); } catch { toast('Copie impossible'); }
+  try { await navigator.clipboard.writeText(`${text} ${location.href.split('#')[0]}`); toast(t('share.copied')); } catch { toast(t('share.copyFail')); }
 }
 
 function openFilters() {
   state.sheet = { type: 'filters' };
   const st = state.data ? state.data.stations : [];
-  const regions = [...new Set(st.map((s) => s.region).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'fr'));
+  const regions = [...new Set(st.map((s) => s.region).filter(Boolean))].sort((a, b) => a.localeCompare(b, locale()));
   const counts = new Map();
   for (const s of st) counts.set(s.brand, (counts.get(s.brand) || 0) + 1);
-  const brands = [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'fr')).map((x) => x[0]);
+  const brands = [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], locale())).map((x) => x[0]);
   const opt = (v, label, cur) => `<option value="${esc(v)}"${String(cur) === String(v) ? ' selected' : ''}>${esc(label)}</option>`;
   openSheet(`
     <div class="sheet__scroll stack" style="--gap:var(--sp-16)">
-      <div class="sheet__bar"><h2 class="t-h3" id="sheet-title" tabindex="-1" data-focus>Filtres et réglages</h2><button class="iconbtn" data-act="close" aria-label="Fermer">${ico('close')}</button></div>
+      <div class="sheet__bar"><h2 class="t-h3" id="sheet-title" tabindex="-1" data-focus>${t('filters.title')}</h2><button class="iconbtn" data-act="close" aria-label="${t('close')}">${ico('close')}</button></div>
       <div class="form">
-        <div class="field field--outlined select"><label class="field__label" for="f-region">Région</label><div class="field__box"><select id="f-region">${opt('', 'Toutes les régions', state.region)}${regions.map((r) => opt(r, r, state.region)).join('')}</select></div></div>
-        <div class="field field--outlined select"><label class="field__label" for="f-brand">Bannière</label><div class="field__box"><select id="f-brand">${opt('', 'Toutes les bannières', state.brand)}${brands.map((b) => opt(b, b, state.brand)).join('')}</select></div></div>
-        <div class="field field--outlined"><label class="field__label" for="f-max">Prix maximum (¢/L)</label><div class="field__box"><input id="f-max" type="number" inputmode="decimal" min="0" step="0.1" placeholder="Aucun" value="${state.maxPrice ?? ''}"></div><div class="field__helper">S’applique au carburant choisi : ${FUELS[state.fuel]}.</div></div>
-        <div class="field field--outlined select"><label class="field__label" for="f-radius">Rayon de la liste</label><div class="field__box"><select id="f-radius">${[[5, '5 km'], [10, '10 km'], [25, '25 km'], [50, '50 km'], [0, 'Tout le Québec']].map(([v, l]) => opt(v, l, state.radius)).join('')}</select></div><div class="field__helper" id="f-radius-help"></div></div>
-        <div class="field"><span class="field__label" id="f-theme-l">Thème</span>
-          <div class="toggle toggle--block" role="group" aria-labelledby="f-theme-l" id="f-theme">${[['auto', 'Auto'], ['light', 'Jour'], ['dark', 'Nuit']].map(([v, l]) => `<button class="toggle__opt" data-theme-opt="${v}" aria-pressed="${state.theme === v}">${l}</button>`).join('')}</div></div>
+        <div class="field field--outlined select"><label class="field__label" for="f-region">${t('filters.region')}</label><div class="field__box"><select id="f-region">${opt('', t('filters.allRegions'), state.region)}${regions.map((r) => opt(r, r, state.region)).join('')}</select></div></div>
+        <div class="field field--outlined select"><label class="field__label" for="f-brand">${t('filters.brand')}</label><div class="field__box"><select id="f-brand">${opt('', t('filters.allBrands'), state.brand)}${brands.map((b) => opt(b, brandLabel(b), state.brand)).join('')}</select></div></div>
+        <div class="field field--outlined"><label class="field__label" for="f-max">${t('filters.max')}</label><div class="field__box"><input id="f-max" type="number" inputmode="decimal" min="0" step="0.1" placeholder="${t('filters.none')}" value="${state.maxPrice ?? ''}"></div><div class="field__helper">${t('filters.maxHelp', { fuel: fuelName(state.fuel) })}</div></div>
+        <div class="field field--outlined select"><label class="field__label" for="f-radius">${t('filters.radius')}</label><div class="field__box"><select id="f-radius">${[5, 10, 25, 50, 0].map((v) => opt(v, v ? t('filters.km', { n: v }) : t('filters.radiusAll'), state.radius)).join('')}</select></div><div class="field__helper" id="f-radius-help"></div></div>
+        <div class="field"><span class="field__label" id="f-theme-l">${t('theme.label')}</span>
+          <div class="toggle toggle--block" role="group" aria-labelledby="f-theme-l" id="f-theme">${['auto', 'light', 'dark'].map((v) => `<button class="toggle__opt" data-theme-opt="${v}" aria-pressed="${state.theme === v}">${t('theme.' + v)}</button>`).join('')}</div></div>
+        <div class="field"><span class="field__label" id="f-lang-l">${t('lang.label')}</span>
+          <div class="toggle toggle--block" role="group" aria-labelledby="f-lang-l" id="f-lang">${[['fr', 'Français'], ['en', 'English']].map(([v, l]) => `<button class="toggle__opt" data-lang-opt="${v}" lang="${v}" aria-pressed="${lang === v}">${l}</button>`).join('')}</div></div>
       </div>
     </div>
     <div class="sheet__cta">
       <div class="stack stack--row" style="--gap:var(--sp-8)">
-        <button class="btn btn--outlined btn--lg" data-act="reset">Réinitialiser</button>
-        <button class="btn btn--contained btn--lg" style="flex:1" data-act="close" id="f-done">Voir ${listed.length} stations</button>
+        <button class="btn btn--outlined btn--lg" data-act="reset">${t('filters.reset')}</button>
+        <button class="btn btn--contained btn--lg" style="flex:1" data-act="close" id="f-done">${t('filters.see', { n: listed.length })}</button>
       </div>
-      <div class="t-caption">Données : Régie de l’énergie du Québec · Carte © OpenStreetMap</div>
-    </div>`, { label: 'Filtres et réglages' });
+      <div class="t-caption">${t('filters.attrib')}</div>
+    </div>`, { label: t('filters.title') });
   updateFiltersUI();
 }
 
 function updateFiltersUI() {
   const active = !!(state.region || state.brand || state.maxPrice != null);
   $('#filters-dot').hidden = !active;
-  $('#btn-filters').setAttribute('aria-label', active ? 'Filtres et réglages (actifs)' : 'Filtres et réglages');
+  $('#btn-filters').setAttribute('aria-label', t(active ? 'filters.ariaActive' : 'filters.aria'));
   const done = $('#f-done');
-  if (done) done.textContent = `Voir ${listed.length} station${listed.length > 1 ? 's' : ''}`;
+  if (done) done.textContent = t('filters.see', { n: listed.length });
   const help = $('#f-radius-help');
-  if (help) help.textContent = !state.radius ? 'Aucune limite de distance.' : state.user ? `Stations à moins de ${state.radius} km de votre position.` : 'Le rayon s’applique dès que votre position est connue. Activez-la pour l’utiliser.';
+  if (help) help.textContent = !state.radius ? t('filters.radiusNone') : state.user ? t('filters.radiusUser', { r: state.radius }) : t('filters.radiusNoUser');
 }
 
 // ---- render orchestration ------------------------------------------------------------------
@@ -851,37 +855,48 @@ function setFuel(i) {
   renderAll();
 }
 
+function switchLang(l) {
+  if (!setLang(l)) return;
+  applyStatic();
+  // Pins and clusters carry their own labels: rebuild them in the new language.
+  if (cluster) { cluster.clearLayers(); markers.clear(); }
+  renderAll();
+  if (state.sheet && state.sheet.type === 'filters') { openFilters(); const b = $(`[data-lang-opt="${l}"]`); if (b) b.focus({ preventScroll: true }); }
+}
+
 function persistFilters() {
   store.set('region', state.region); store.set('brand', state.brand);
   store.set('maxPrice', state.maxPrice); store.set('radius', state.radius);
 }
 
 document.addEventListener('click', (e) => {
-  const t = e.target;
-  const fuel = t.closest('[data-fuel]');
+  const tg = e.target;
+  const fuel = tg.closest('[data-fuel]');
   if (fuel) return setFuel(+fuel.dataset.fuel);
-  const nav = t.closest('[data-nav]');
+  const nav = tg.closest('[data-nav]');
   if (nav) { closeSheet(); return setView(nav.dataset.nav); }
-  if (t.closest('[data-refresh]')) return refresh({ manual: true });
-  if (t.closest('#btn-filters')) return openFilters();
-  if (t.closest('#btn-locate')) return locate();
-  if (t.closest('#btn-radar')) return openRadar();
-  if (t.closest('#btn-heat')) return setHeat(!state.heat);
-  if (t.closest('#backdrop')) return closeSheet();
-  const sortB = t.closest('[data-sort]');
+  if (tg.closest('[data-refresh]')) return refresh({ manual: true });
+  if (tg.closest('#btn-filters')) return openFilters();
+  if (tg.closest('#btn-locate')) return locate();
+  if (tg.closest('#btn-radar')) return openRadar();
+  if (tg.closest('#btn-heat')) return setHeat(!state.heat);
+  if (tg.closest('#backdrop')) return closeSheet();
+  const sortB = tg.closest('[data-sort]');
   if (sortB && !sortB.disabled) { state.sort = sortB.dataset.sort; state.shown = PAGE; renderAll(); return; }
-  const themeB = t.closest('[data-theme-opt]');
+  const themeB = tg.closest('[data-theme-opt]');
   if (themeB) {
     state.theme = themeB.dataset.themeOpt; store.set('theme', state.theme); applyTheme();
     $$('#f-theme [data-theme-opt]').forEach((b) => b.setAttribute('aria-pressed', String(b === themeB)));
     return;
   }
-  const act = t.closest('[data-act]');
+  const langB = tg.closest('[data-lang-opt]');
+  if (langB) return switchLang(langB.dataset.langOpt);
+  const act = tg.closest('[data-act]');
   if (act) {
     const a = act.dataset.act;
     if (a === 'close') {
       // The count on the filters button is the list (radius included); the map ignores the radius, so show the list.
-      const toList = t.closest('#f-done') && state.user && state.radius && state.view !== 'list';
+      const toList = tg.closest('#f-done') && state.user && state.radius && state.view !== 'list';
       closeSheet();
       if (toList) setView('list');
       return;
@@ -903,9 +918,9 @@ document.addEventListener('click', (e) => {
       $('#q').value = ''; persistFilters(); renderAll(); closeSheet(); return;
     }
   }
-  const item = t.closest('button[data-key]');
+  const item = tg.closest('button[data-key]');
   if (item) return openStation(item.dataset.key);
-  if (t.closest('#best') && $('#best').dataset.key) return openStation($('#best').dataset.key, { fromMap: true });
+  if (tg.closest('#best') && $('#best').dataset.key) return openStation($('#best').dataset.key, { fromMap: true });
 });
 
 $('#best').addEventListener('keydown', (e) => {
@@ -918,7 +933,7 @@ document.addEventListener('change', (e) => {
   else if (id === 'f-brand') state.brand = e.target.value;
   else if (id === 'f-radius') {
     state.radius = +e.target.value; state.shown = PAGE;
-    if (state.radius && !state.user) { toast('Recherche de votre position pour appliquer le rayon…'); locate({ fly: false }); }
+    if (state.radius && !state.user) { toast(t('filters.radiusToast')); locate({ fly: false }); }
   }
   else if (id === 'calc-l') return;
   else if (id === 'f-max') { const v = parseFloat(String(e.target.value).replace(',', '.')); state.maxPrice = Number.isFinite(v) && v > 0 ? v : null; }
@@ -971,6 +986,7 @@ document.addEventListener('keydown', (e) => {
 
 // ---- lifecycle -----------------------------------------------------------------------------
 function boot() {
+  applyStatic();
   $$('#fuel [data-fuel]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.fuel === state.fuel)));
   initMap();
   if (window.ResizeObserver) new ResizeObserver(() => document.documentElement.style.setProperty('--top-h', $('#top').offsetHeight + 'px')).observe($('#top'));

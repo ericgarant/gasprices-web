@@ -1,5 +1,6 @@
 // Price history from the hourly snapshots in data/history/ (written by scripts/snapshot.mjs).
 import { fmt1 } from './util.js';
+import { t } from './i18n.js';
 
 const DIR = 'data/history/';
 const MAX_DAYS = 14;
@@ -66,9 +67,9 @@ export function regionSeries(hist, region, fuel) {
 
 const fmtSpan = (ms) => {
   const h = ms / 36e5;
-  if (h < 1.5) return 'moins d’une heure';
-  if (h < 36) return `${Math.round(h)} h`;
-  return `${Math.round(h / 24)} j`;
+  if (h < 1.5) return t('span.lt1h');
+  if (h < 36) return t('span.h', { n: Math.round(h) });
+  return t('span.d', { n: Math.round(h / 24) });
 };
 
 /** Trend summary for a series: { dir: 'down'|'up'|'flat', delta, span } or null when too short. */
@@ -81,8 +82,8 @@ export function trendOf(pts) {
 
 export function trendText(tr) {
   if (!tr) return '';
-  if (tr.dir === 'flat') return `Stable depuis ${tr.span}`;
-  return `${tr.dir === 'down' ? 'En baisse' : 'En hausse'} de ${fmt1(Math.abs(tr.delta))}¢ depuis ${tr.span}`;
+  if (tr.dir === 'flat') return t('trend.flat', { span: tr.span });
+  return t('trend.' + tr.dir, { d: fmt1(Math.abs(tr.delta)), span: tr.span });
 }
 
 /** Inline SVG step chart. `pts` has at least two points. Colour is not the only cue: the labels carry the numbers. */
@@ -100,16 +101,16 @@ export function chartSVG(pts, { w = 320, h = 132 } = {}) {
   const area = `${d}V${h - padB}H${x(pts[0].t).toFixed(1)}Z`;
   const imin = vs.indexOf(Math.min(...vs)), imax = vs.indexOf(Math.max(...vs));
   const label = (i, dy) => `<text class="hc__val" x="${Math.min(w - 30, Math.max(30, x(pts[i].t))).toFixed(1)}" y="${(y(pts[i].v) + dy).toFixed(1)}" text-anchor="middle">${fmt1(pts[i].v)}</text>`;
-  return `<svg class="hchart" viewBox="0 0 ${w} ${h}" role="img" aria-label="Évolution du prix, de ${fmt1(vs[0])} à ${fmt1(last.v)} cents">
+  return `<svg class="hchart" viewBox="0 0 ${w} ${h}" role="img" aria-label="${t('chart.aria', { a: fmt1(vs[0]), b: fmt1(last.v) })}">
     <path class="hc__area" d="${area}"/><path class="hc__line" d="${d}"/>
     <circle class="hc__dot" cx="${x(last.t).toFixed(1)}" cy="${y(last.v).toFixed(1)}" r="4.5"/>
     ${imax !== imin ? label(imax, -8) : ''}${label(imin, 16)}
-    <text class="hc__ax" x="${padL}" y="${h - 4}">${axisLabel(t0)}</text><text class="hc__ax" x="${w - padR}" y="${h - 4}" text-anchor="end">maintenant</text>
+    <text class="hc__ax" x="${padL}" y="${h - 4}">${axisLabel(t0)}</text><text class="hc__ax" x="${w - padR}" y="${h - 4}" text-anchor="end">${t('chart.now')}</text>
   </svg>`;
 }
 
-function axisLabel(t) {
-  const days = (Date.now() - t) / 864e5;
-  if (days < 1) return `il y a ${Math.max(1, Math.round(days * 24))} h`;
-  return `il y a ${Math.round(days)} j`;
+function axisLabel(ts) {
+  const days = (Date.now() - ts) / 864e5;
+  if (days < 1) return t('age.h', { n: Math.max(1, Math.round(days * 24)) });
+  return t('age.d', { n: Math.round(days) });
 }

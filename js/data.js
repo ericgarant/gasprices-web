@@ -1,7 +1,9 @@
 // Fetches the Régie feed, turns it into compact station records, caches the last copy for offline use.
 import { store, brandName } from './util.js';
+import { t } from './i18n.js';
 
 export const FEED_URL = 'https://regieessencequebec.ca/stations.geojson.gz';
+// Gas type labels as published in the feed (data keys, never shown directly: the UI uses fuelName()).
 export const FUELS = ['Régulier', 'Super', 'Diesel'];
 
 /** Station record: { key, name, addr, brand, region, lat, lng, prices: [reg, sup, dsl] (null = n/a) } */
@@ -78,4 +80,4 @@ export function levelOf(stats, region, p) {
   return 'avg';
 }
 
-export const LEVEL_LABEL = { cheap: 'Bas prix', avg: 'Moyen', pricey: 'Élevé' };
+export const levelLabel = (l) => t('level.' + l);
