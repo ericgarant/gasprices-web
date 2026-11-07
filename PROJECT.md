@@ -122,6 +122,8 @@ The Régie only publishes current prices. A scheduled GitHub Actions job saves a
 
 - 2026-11-07: Phase 2 core app built (PR on branch `claude/project-thread-ecgy2n`): map with clustered price pins, nearby list, fuel toggle, filters (region, brand, max price, radius), favourites, station sheet with directions, offline cache + service worker, 5-minute auto-refresh, installable PWA, light/dark. Price levels are terciles per region.
 
+- 2026-11-07: Phase 3 fun features built (PR on branch `claude/project-thread-etkntx`): fuel-gauge loader, deal radar (top 5 within 10 km, highlighted on the map), savings calculator (litres, vs closest station and regional average), best-price moment (confetti + vibration), heat map toggle, price history chart per station (reads `data/history/`, new `days.json` index written by the snapshot job), price watch on favourites (checked at each refresh, dot on the Favoris tab), share card image. Confetti and the radar sweep are the only animations over ~400 ms (about 0.9 s and 2 x 1.4 s); all are off under "reduce motion".
+
 ## Working notes for Claude
 
 - Start each chat by connecting the GitHub repo `ericgarant/gasprices-web` and reading the latest `PROJECT.md` from it; the repo copy is newer than any uploaded copy.
@@ -131,4 +133,4 @@ The Régie only publishes current prices. A scheduled GitHub Actions job saves a
 
 ## Next step
 
-Phase 3: fun features. (Phase 2 core app is built; test it installed on a phone.) Original phase 2 note: build the core app on top of `design-system/styles.css` (link it, don't copy values). Eric turns on GitHub Pages first (Settings > Pages > main, root). The concept screens in `design-system/concept.html` are the reference for the map view and the station sheet.
+Phase 4: polish and audits (performance, accessibility, animation), test installed on a phone. Phase 3 is built. Earlier note: build the core app on top of `design-system/styles.css` (link it, don't copy values). Eric turns on GitHub Pages first (Settings > Pages > main, root). The concept screens in `design-system/concept.html` are the reference for the map view and the station sheet.

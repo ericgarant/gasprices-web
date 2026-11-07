@@ -74,3 +74,74 @@ section[id^="view-"]{position:absolute;inset:0}
 #toast{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(72px + var(--sp-24) + env(safe-area-inset-bottom));z-index:1400;width:max-content;max-width:calc(100% - 24px)}
 #toast.top{bottom:auto;top:max(var(--sp-16),env(safe-area-inset-top))}
 .fresh{white-space:nowrap}
+
+/* ======================= Phase 3: fun features ======================= */
+@keyframes pop-in{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+
+/* Fuel gauge loader */
+#loading .gauge{width:150px;height:88px}
+
+/* Deal radar */
+.radar-wrap{display:flex;justify-content:center}
+.radar--lg{width:240px;height:240px;overflow:visible;border-radius:var(--r-full)}
+.radar--lg::before{background:repeating-radial-gradient(circle,transparent 0 39px,var(--sign-rule) 39px 40px)}
+.radar--lg::after{animation:spin 1.4s linear 2 both}
+.radar__me{position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px;border-radius:var(--r-full);background:var(--on-sign);z-index:2}
+.radar .radar__dot{position:absolute;z-index:3;width:24px;height:24px;margin:-12px;display:grid;place-items:center;border-radius:var(--r-full);
+  background:var(--sign-cheap);color:#06210f;font:800 13px/1 var(--font-display);font-style:normal;box-shadow:var(--sign-glow);
+  animation:pop-in .3s var(--ease-spring) both}
+.radar__range{position:absolute;right:10px;bottom:8px;font:700 11px var(--font-display);letter-spacing:.08em;color:var(--sign-muted);z-index:2}
+.radar__rank{background:var(--sign);color:var(--sign-cheap);font:800 18px var(--font-display)}
+.radar__list{border-top:1px solid var(--border-faint)}
+.radar__list li:last-child{border-bottom:0}
+
+/* Best-price moment, radar highlight on the map */
+.pin--best .pin__plate{animation:pop-in .3s var(--ease-spring) both}
+.best-tag .ico{--icon-size:14px;margin-right:2px}
+.confetti{position:absolute;inset:0;width:100%;height:100%;z-index:1500;pointer-events:none}
+
+/* Heat map */
+.heat-canvas{position:absolute;left:0;top:0;pointer-events:none;transition:opacity var(--dur-base) var(--ease)}
+.heat-legend{position:absolute;left:var(--sp-12);top:calc(var(--top-h,130px) + var(--sp-8));z-index:1000;display:flex;flex-direction:column;gap:var(--sp-4);
+  padding:var(--sp-8) var(--sp-12);border-radius:var(--r-md);background:var(--surface);box-shadow:var(--elev-2);width:168px}
+.heat-legend__t{font:600 11px var(--font-body);color:var(--muted)}
+.heat-legend__bar{height:8px;border-radius:var(--r-full);background:linear-gradient(90deg,var(--cheap),var(--avg),var(--pricey))}
+.heat-legend__l{display:flex;justify-content:space-between;font:700 11px var(--font-body);color:var(--on-surface)}
+#btn-heat[aria-pressed="true"]{background:var(--primary);color:var(--on-primary)}
+#top .row .iconbtn+.iconbtn{margin-left:0}
+
+/* Savings calculator */
+.calc__lit{display:inline-flex;align-items:center;gap:var(--sp-4);height:40px;padding:0 var(--sp-12);border-radius:var(--r-full);border:1px solid var(--border);font:700 16px var(--font-body);color:var(--on-surface)}
+.calc__lit input{width:56px;border:0;background:none;text-align:right;font:inherit;color:inherit;outline:none;-moz-appearance:textfield}
+.calc__lit input::-webkit-outer-spin-button,.calc__lit input::-webkit-inner-spin-button{-webkit-appearance:none}
+.calc__lit:focus-within{box-shadow:var(--focus-ring)}
+.calc__row{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-12)}
+.calc__what{display:flex;flex-direction:column;min-width:0}
+.calc__amt{display:flex;flex-direction:column;align-items:flex-end;flex:none}
+.calc__amt small{font:700 11px var(--font-display);letter-spacing:.1em;text-transform:uppercase}
+.calc__amt b{font:800 28px/1 var(--font-display)}
+.calc__amt--cheap{color:var(--cheap-ink)}.calc__amt--pricey{color:var(--pricey-ink)}.calc__amt--same{color:var(--muted)}
+
+/* Price watch */
+.watch-hint{display:flex;align-items:center;gap:var(--sp-8)}
+.watch-hint .ico,.watch-line .ico{--icon-size:14px;margin-right:var(--sp-4);vertical-align:-2px}
+.watch-line.is-hit,.watch-ok{color:var(--cheap-ink);font-weight:700}
+
+/* Price history */
+.hist__trend{display:flex;align-items:center;gap:var(--sp-8);margin:var(--sp-8) 0 var(--sp-4)}
+.hist__trend--down{color:var(--cheap-ink)}.hist__trend--up{color:var(--pricey-ink)}.hist__trend--flat{color:var(--muted)}
+.hchart{width:100%;height:auto;display:block}
+.hc__line{fill:none;stroke:var(--on-surface);stroke-width:2.5;stroke-linejoin:round}
+.hc__area{fill:var(--on-surface);opacity:.07;stroke:none}
+.hc__dot{fill:var(--primary);stroke:var(--surface);stroke-width:2}
+.hc__val{font:800 13px var(--font-display);fill:var(--on-surface);font-variant-numeric:tabular-nums}
+.hc__ax{font:500 11px var(--font-body);fill:var(--muted)}
+
+/* Share card */
+.share-prev{display:flex;justify-content:center;min-height:120px;align-items:center}
+.share-img{width:min(100%,300px);aspect-ratio:1080/1350;border-radius:var(--r-md);box-shadow:var(--elev-2)}
+#favs-dot{top:0;right:10px}
+
+@media (prefers-reduced-motion: reduce){
+  .radar__dot,.pin--best .pin__plate{animation-delay:0s!important}
+}

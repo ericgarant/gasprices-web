@@ -1,8 +1,8 @@
 // Service worker: the app shell works offline. Price data is cached by the app itself (localStorage).
-const VERSION = 'lp-v1';
+const VERSION = 'lp-v2';
 const SHELL = [
   './', 'index.html', 'app.css', 'manifest.webmanifest', 'design-system/styles.css',
-  'js/main.js', 'js/data.js', 'js/util.js', 'icons/icon.svg', 'icons/icon-192.png',
+  'js/main.js', 'js/data.js', 'js/util.js', 'js/effects.js', 'js/heat.js', 'js/history.js', 'js/sharecard.js', 'icons/icon.svg', 'icons/icon-192.png',
 ];
 const CDN = [
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
