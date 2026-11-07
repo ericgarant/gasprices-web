@@ -13,7 +13,7 @@ No build step. Serve the repo root over HTTP (`python3 -m http.server`) and open
 
 ## Tests
 
-35 Playwright end-to-end tests at phone size, with the feed mocked: `cd tests && npm install && npm test`. Details in `tests/README.md`.
+39 Playwright end-to-end tests at phone size, with the feed mocked: `cd tests && npm install && npm test`. Details in `tests/README.md`.
 
 See `PROJECT.md` for the full brief: data format, design direction, features and progress.
 

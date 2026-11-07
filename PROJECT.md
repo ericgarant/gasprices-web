@@ -131,7 +131,7 @@ Scheduler status (checked 2026-11-07 20:17 UTC): the workflow has only ever run 
 - 2026-11-07: Phase 1 merged (PR #1), Phase 2 merged (PR #2): GitHub Pages turned on and the app is live at https://ericgarant.github.io/gasprices-web/. Phase 3 merged (PR #3).
 - 2026-11-07: Phase 4 (PR #4): focus trapped in sheets; snapshot cron moved from `:51` to `:17` because it had never fired on schedule.
 - 2026-11-07: Fixes after first use: the list radius filter explains itself and asks for GPS (PR #5); the service worker cache made updates slow, so it now bypasses the HTTP cache and deploys show up right away, and "Voir N stations" opens the list when a radius is active (PR #6); the map pins follow the radius (PR #7).
-- 2026-11-07: QA: 35 Playwright end-to-end tests in `tests/` (run: `cd tests && npm install && npm test`), plus a fix so the top buttons no longer squash on narrow phones (PR #8).
+- 2026-11-07: QA: 39 Playwright end-to-end tests in `tests/` (35 at PR #8, 4 brand-badge tests added in PR #9) (run: `cd tests && npm install && npm test`), plus a fix so the top buttons no longer squash on narrow phones (PR #8).
 - 2026-11-07: Brand badges: coloured avatars, name badges and pin stripes, brand name as text on the brand's colour, no logos (PR #9).
 - 2026-11-07: Eric and a friend (iPhone) are testing on their phones. Model rule set: Sonnet 5.5 by default, Opus 5.5 only for a big gain.
 

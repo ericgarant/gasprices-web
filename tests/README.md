@@ -11,4 +11,4 @@ npm test
 
 In a container with a pre-installed Chromium, point at it with `PW_CHROMIUM=/path/to/chrome`.
 
-Covered: loading, closed stations dropped, fuel toggle, brand / region / max price / search filters, radius on the list and the map pins, favourites, station sheet (calculator, directions, close, focus trap), radar, heat map, price watch, share card, history chart, refresh, offline (feed failure and a real service-worker offline reload), dark mode, touch target size.
+Covered: loading, closed stations dropped, fuel toggle, brand / region / max price / search filters, radius on the list and the map pins, favourites, station sheet (calculator, directions, close, focus trap), radar, heat map, price watch, share card, history chart, refresh, offline (feed failure and a real service-worker offline reload), dark mode, touch target size, brand badges (contrast, sheet, pin stripes).
