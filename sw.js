@@ -1,5 +1,5 @@
 // Service worker: the app shell works offline. Price data is cached by the app itself (localStorage).
-const VERSION = 'lp-v2';
+const VERSION = 'lp-v3';
 const SHELL = [
   './', 'index.html', 'app.css', 'manifest.webmanifest', 'design-system/styles.css',
   'js/main.js', 'js/data.js', 'js/util.js', 'js/effects.js', 'js/heat.js', 'js/history.js', 'js/sharecard.js', 'icons/icon.svg', 'icons/icon-192.png',
@@ -42,7 +42,7 @@ self.addEventListener('fetch', (e) => {
   if (url.origin === location.origin || CDN.includes(req.url)) {
     e.respondWith((async () => {
       try {
-        const r = await fetch(req);
+        const r = await fetch(req, { cache: 'no-cache' });
         if (r.ok) (await caches.open(VERSION)).put(req, r.clone());
         return r;
       } catch (err) {
