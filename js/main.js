@@ -878,7 +878,13 @@ document.addEventListener('click', (e) => {
   const act = t.closest('[data-act]');
   if (act) {
     const a = act.dataset.act;
-    if (a === 'close') return closeSheet();
+    if (a === 'close') {
+      // The count on the filters button is the list (radius included); the map ignores the radius, so show the list.
+      const toList = t.closest('#f-done') && state.user && state.radius && state.view !== 'list';
+      closeSheet();
+      if (toList) setView('list');
+      return;
+    }
     if (a === 'fav' && state.selected) return toggleFav(state.selected);
     if (a === 'share' && state.selected) return shareStation(state.selected);
     if (a === 'locate') return locate();
